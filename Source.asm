@@ -1,8 +1,4 @@
-;	  /*||||*\
-;	 //  By  \\
-;	//  Frank \\
-;  //  Paschen \\
-;  \*||||||||||*/
+; by frank paschen :)
 
 INCLUDE Irvine32.inc
 .386
