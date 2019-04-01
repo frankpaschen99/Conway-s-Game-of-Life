@@ -1,12 +1,8 @@
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    03/31/19 23:51:49
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/01/19 01:59:09
 Source.asm						     Page 1 - 1
 
 
-				;	  /*||||*\
-				;	 //  By  \\
-				;	//  Frank \\
-				;  //  Paschen \\
-				;  \*||||||||||*/
+				; by frank paschen :)
 
 				INCLUDE Irvine32.inc
 			      C ; Include file for Irvine32.lib             (Irvine32.inc)
@@ -28,7 +24,7 @@ Source.asm						     Page 1 - 1
 			      C 
 				.386
 				.model flat,stdcall
-Source.asm(9) : warning A4011:multiple .MODEL directives found : .MODEL ignored
+Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				.stack 4096
 				ExitProcess proto,dwExitCode:dword
 
@@ -36,7 +32,90 @@ Source.asm(9) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  00000000 47 45 4E 45 52		GenMsg BYTE "GENERATION #", 0
 	   41 54 49 4F 4E
 	   20 23 00
- 0000000D 0000				GenCount WORD 0
+ 0000000D 0000				GenCount SWORD 0
+
+ 0000000F 00 00 00 00 00		GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 00000023 = 00000014			Rowsize = ($ - GameBoard)
+ 00000023  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 00000037  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 0000004B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 0000005F  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 00000073  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 00000087  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 0000009B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 000000AF  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 000000C3  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 000000D7  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 000000EB  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 000000FF  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 00000113  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 00000127  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 0000013B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 0000014F  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 00000163  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 00000177  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+ 0000018B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	   00 00 00 00 00
+	   00 00 00 00 00
+	   00 00 00 00 00
+						
  00000000			.code
 				;-------------
 				;  CalculateGeneration
@@ -51,7 +130,8 @@ Source.asm(9) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 						; 1. Iterate through the board and calculate the # of living neighbors for each cell
 						; 2. Implement GoL rules and update the backup board based on the # of living neighbors
 					; Copy the backup board into the gameboard
- 00000000			CalculateGeneration ENDP
+ 00000000  C3				ret
+ 00000001			CalculateGeneration ENDP
 
 				;-------------
 				;  GenRandomBoard
@@ -59,12 +139,13 @@ Source.asm(9) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				;  Sets random cells in the gameboard to living or dead.
 				;  Called before first generation
 				;-------------
- 00000000			GenRandomBoard PROC
+ 00000001			GenRandomBoard PROC
 					; LOOP
 						; 1. Iterate through the game board
 						; 2. Generate a number between 0 and 1 (inclusive)
 						; 3. Set current cell to random number
- 00000000			GenRandomBoard ENDP
+ 00000001  C3					ret
+ 00000002			GenRandomBoard ENDP
 
 				;-------------
 				;  DrawGameBoard
@@ -72,7 +153,7 @@ Source.asm(9) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				;  Uses cursor to print the gameboard to the console.
 				;  Called immediately after CalculateGeneration
 				;-------------
- 00000000			DrawGameBoard PROC
+ 00000002			DrawGameBoard PROC
 					; LOOP
 						; 1. Iterate through the first row of the game board
 						; 2. Move cursor to top left of board
@@ -82,9 +163,14 @@ Source.asm(9) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 						; this might not be right lol
 						; we're using ROW-MAJOR ORDER I THINK
 						; possibly do each row at a time, increment Y coordinate for Gotoxy each loop
-						
+ 00000002  B6 00			mov dh, 0 ; y = 0
+ 00000004  B2 00			mov dl, 0 ; x = 0
+ 00000006				L1:
+ 00000006  FE C6				inc dh	; move cursor down
 
- 00000000			DrawGameBoard ENDP
+ 00000008  E2 FC			loop L1
+ 0000000A  C3				ret
+ 0000000B			DrawGameBoard ENDP
 
 
 				;-------------
@@ -93,41 +179,86 @@ Source.asm(9) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				;  Prints and increments the generation count
 				;  Called immediately after CalculateGeneration
 				;-------------
- 00000000			IncrementGeneration PROC
+ 0000000B			IncrementGeneration PROC
 					; increment gen count
- 00000000  66| FF 05			inc GenCount
+ 0000000B  66| FF 05			inc GenCount
 	   0000000D R
 					; move cursor to top left
- 00000007  B6 00			mov dh, 0	; Y
- 00000009  B2 00			mov dl, 0	; X
- 0000000B  E8 00000000 E		call Gotoxy
+ 00000012  B6 00			mov dh, 0	; Y
+ 00000014  B2 00			mov dl, 0	; X
+ 00000016  E8 00000000 E		call Gotoxy
 					; print Generation #:
- 00000010  BA 00000000 R		mov edx, OFFSET GenMsg
- 00000015  E8 00000000 E		call WriteString      
+ 0000001B  BA 00000000 R		mov edx, OFFSET GenMsg
+ 00000020  E8 00000000 E		call WriteString      
 					; print actual gen count
- 0000001A  A1 0000000D R		mov eax, DWORD PTR GenCount
- 0000001F  E8 00000000 E		call WriteInt
- 00000024  C3				ret
- 00000025			IncrementGeneration ENDP
+ 00000025  A1 0000000D R		mov eax, DWORD PTR GenCount
+ 0000002A  E8 00000000 E		call WriteInt
+ 0000002F  C3				ret
+ 00000030			IncrementGeneration ENDP
 
 				;-------------
-				; MAIN PROCEDURE
+				;  
+				;  
+				;  Prints and increments the generation count
+				;  Called immediately after CalculateGeneration
 				;-------------
- 00000025			main PROC
+
+				;-----------------------------------------------------
+				; GetValueAtCoords
+				;
+				; Returns value found at index in gameboard.
+				; Receives: 
+				; 
+				; Returns: AL = element at coordinates in array
+				;-----------------------------------------------------
+ 00000030			GetValueAtCoords PROC USES esi ebx
+ = 00000000				row_index = 0
+ = 00000000				column_index = 0
+
+ 00000030  56		   *	    push   esi
+ 00000031  53		   *	    push   ebx
+ 00000032  BB 0000000F R		mov ebx, OFFSET GameBoard ; table offset
+ 00000037  81 C3 00000000		add ebx, RowSize * row_index ; row offset
+ 0000003D  BE 00000000			mov esi, column_index
+ 00000042  8A 04 33			mov al, [ebx + esi] ; AL
+					
+					ret
+ 00000045  5B		   *	    pop    ebx
+ 00000046  5E		   *	    pop    esi
+ 00000047  C3		   *	    ret    00000h
+ 00000048			GetValueAtCoords ENDP
+				;-------------
+				; MAIN PROC
+				;-------------
+ 00000048			main PROC
+					;mov eax, 0
 
 
- 00000025  E8 FFFFFFD6			call IncrementGeneration
+ 00000048  E8 FFFFFFE3			call GetValueAtCoords
+ 0000004D  E8 00000000 E		call WriteInt
+ 00000052  E8 00000000 E		call DumpRegs
+
+
+
+
+
+
+
+					;mov ecx, 3
+					;L1:
+					;	call DumpRegs
+					;loop L1
 
 				;	call DumpRegs
 
-					; main procedure will timing and procedure calls
+					; main procedure will handle timing and procedure calls
 
 					invoke ExitProcess,0
- 0000002A  6A 00	   *	    push   +000000000h
- 0000002C  E8 00000000 E   *	    call   ExitProcess
- 00000031			main endp
+ 00000057  6A 00	   *	    push   +000000000h
+ 00000059  E8 00000000 E   *	    call   ExitProcess
+ 0000005E			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    03/31/19 23:51:49
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/01/19 01:59:09
 Source.asm						     Symbols 2 - 1
 
 
@@ -221,15 +352,15 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 0000000F Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000031 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 0000019F Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000005E Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-CalculateGeneration  . . . . . .	P Near	 00000000 _TEXT	Length= 00000000 Public STDCALL
+CalculateGeneration  . . . . . .	P Near	 00000000 _TEXT	Length= 00000001 Public STDCALL
 CloseFile  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 CloseHandle  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Clrscr . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -237,7 +368,8 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DrawGameBoard  . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000000 Public STDCALL
+DrawGameBoard  . . . . . . . . .	P Near	 00000002 _TEXT	Length= 00000009 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 00000006 _TEXT	
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -245,7 +377,7 @@ FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GenRandomBoard . . . . . . . . .	P Near	 00000000 _TEXT	Length= 00000000 Public STDCALL
+GenRandomBoard . . . . . . . . .	P Near	 00000001 _TEXT	Length= 00000001 Public STDCALL
 GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -265,13 +397,14 @@ GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
+GetValueAtCoords . . . . . . . .	P Near	 00000030 _TEXT	Length= 00000018 Public STDCALL
 Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-IncrementGeneration  . . . . . .	P Near	 00000000 _TEXT	Length= 00000025 Public STDCALL
+IncrementGeneration  . . . . . .	P Near	 0000000B _TEXT	Length= 00000025 Public STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -333,7 +466,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000025 _TEXT	Length= 0000000C Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000048 _TEXT	Length= 00000016 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -400,6 +533,7 @@ GENERIC_ALL  . . . . . . . . . .	Number	 10000000h
 GENERIC_EXECUTE  . . . . . . . .	Number	 20000000h   
 GENERIC_READ . . . . . . . . . .	Number	 -80000000h   
 GENERIC_WRITE  . . . . . . . . .	Number	 40000000h   
+GameBoard  . . . . . . . . . . .	Byte	 0000000F _DATA	
 GenCount . . . . . . . . . . . .	Word	 0000000D _DATA	
 GenMsg . . . . . . . . . . . . .	Byte	 00000000 _DATA	
 GetCommandLine . . . . . . . . .	Text   	 GetCommandLineA
@@ -463,6 +597,7 @@ RIGHT_ALT_PRESSED  . . . . . . .	Number	 00000001h
 RIGHT_CTRL_PRESSED . . . . . . .	Number	 00000004h   
 ReadConsoleInput . . . . . . . .	Text   	 ReadConsoleInputA
 ReadConsole  . . . . . . . . . .	Text   	 ReadConsoleA
+Rowsize  . . . . . . . . . . . .	Number	 00000014h   
 SCROLLLOCK_ON  . . . . . . . . .	Number	 00000040h   
 SHIFT_MASK . . . . . . . . . . .	Number	 00000010h   
 SHIFT_PRESSED  . . . . . . . . .	Number	 00000010h   
@@ -557,6 +692,7 @@ WriteConsole . . . . . . . . . .	Text   	 WriteConsoleA
 black  . . . . . . . . . . . . .	Number	 00000000h   
 blue . . . . . . . . . . . . . .	Number	 00000001h   
 brown  . . . . . . . . . . . . .	Number	 00000006h   
+column_index . . . . . . . . . .	Number	 00000000h   
 cyan . . . . . . . . . . . . . .	Number	 00000003h   
 exit . . . . . . . . . . . . . .	Text   	 INVOKE ExitProcess,0
 gray . . . . . . . . . . . . . .	Number	 00000008h   
@@ -569,6 +705,7 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
+row_index  . . . . . . . . . . .	Number	 00000000h   
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
