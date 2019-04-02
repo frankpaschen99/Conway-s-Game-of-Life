@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/02/19 03:53:58
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/02/19 04:20:04
 Source.asm						     Page 1 - 1
 
 
@@ -35,16 +35,16 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  0000000D 0000				GenCount SWORD 0
 
 					; Main game board array that will be drawn to the console
- 0000000F 00 00 00 00 00		GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ 0000000F 09 00 04 00 00		GameBoard BYTE 9, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+	   00 08 00 00 00
 	   00 00 00 00 00
-	   00 00 00 00 00
-	   00 00 00 00 00
+	   00 00 00 00 04
  00000023 = 00000014			Rowsize = ($ - GameBoard)
  00000023  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	   00 00 00 00 00
 	   00 00 00 00 00
 	   00 00 00 00 00
- 00000037  00 00 00 04 00				  BYTE 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ 00000037  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	   00 00 00 00 00
 	   00 00 00 00 00
 	   00 00 00 00 00
@@ -174,21 +174,17 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 						; possibly do each row at a time, increment Y coordinate for Gotoxy each loop
 
 						; possibly call GetValueAtCoords using dh and dl/
- 00000002  B6 00			mov dh, 0 ; y = 0
- 00000004  B2 00			mov dl, 0 ; x = 0
 
+ 00000002  B6 00			mov dh, 0
+ 00000004  B2 00			mov dl, 0
  00000006  B9 00000014			mov ecx, 20
  0000000B				L1:
- 0000000B  FE C2				inc dl
-						
-						;inc dh	; move cursor down
+ 0000000B  E8 0000002F				call GetValueAtCoords	; eax = result
 
- 0000000D  E2 FC			loop L1
+ 00000010  E8 00000000 E			call WriteInt
+ 00000015  FE C2				inc dl
+ 00000017  E2 F2			loop L1
 
- 0000000F  E8 0000002B			call GetValueAtCoords	; eax = value
-						
-
- 00000014  E8 00000000 E			call WriteInt
  00000019  C3				ret
  0000001A			DrawGameBoard ENDP
 				;-----------------------------------------------------
@@ -223,59 +219,47 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				; Receives: dh = y coordinate
 				;			dl = x coordinate (FIX THIS)
 				; 
-				; Returns: EAX = element at coordinates in array
+				; Returns: al = element at coordinates in array
 				; Still not working properly. 4/2/19
 				;-----------------------------------------------------
  0000003F			GetValueAtCoords PROC USES esi ebx edx
  0000003F  56		   *	    push   esi
  00000040  53		   *	    push   ebx
  00000041  52		   *	    push   edx
- 00000042  E8 00000000 E		call DumpRegs
- 00000047  B8 00000000			mov eax, 0
+ 00000042  B8 00000000			mov eax, 0
 					; store array offset in memory
- 0000004C  BB 0000000F R		mov ebx, OFFSET GameBoard ; table offset
+ 00000047  BB 0000000F R		mov ebx, OFFSET GameBoard ; table offset
 
 					; multiply RowSize and y coordinate
- 00000051  B0 14			mov al, RowSize
- 00000053  F6 E6			mul dh	; result of AL * DH stored in AX
+ 0000004C  B0 14			mov al, RowSize
+ 0000004E  F6 E6			mul dh	; result of AL * DH stored in AX
 
- 00000055  03 D8			add ebx, eax ; row offset
+ 00000050  03 D8			add ebx, eax ; row offset
+
 					; add offset and x coordinate to get [X,Y] in array
- 00000057  0F B6 F2			movzx esi, dl
- 0000005A  8B 04 33			mov eax, [ebx + esi] ; eax = result
- 0000005D  E8 00000000 E		call DumpRegs
+ 00000052  0F B6 F2			movzx esi, dl
+ 00000055  8A 04 33			mov al, [ebx + esi] ; al = result
+					
 					ret
- 00000062  5A		   *	    pop    edx
- 00000063  5B		   *	    pop    ebx
- 00000064  5E		   *	    pop    esi
- 00000065  C3		   *	    ret    00000h
-
- 00000066			GetValueAtCoords ENDP
+ 00000058  5A		   *	    pop    edx
+ 00000059  5B		   *	    pop    ebx
+ 0000005A  5E		   *	    pop    esi
+ 0000005B  C3		   *	    ret    00000h
+ 0000005C			GetValueAtCoords ENDP
 				;-----------------------------------------------------
 				; main
 				;
 				; manages timing and procedure calls 
 				;-----------------------------------------------------
- 00000066			main PROC
-
-					
- 00000066  E8 FFFFFF97			call DrawGameBoard
-
-					;call DumpRegs
-
-					;mov ecx, 3
-					;L1:
-					;	call DumpRegs
-					;loop L1
-
-				;	call DumpRegs
+ 0000005C			main PROC
+ 0000005C  E8 FFFFFFA1			call DrawGameBoard	; will be called on a delay
 
 					invoke ExitProcess,0
- 0000006B  6A 00	   *	    push   +000000000h
- 0000006D  E8 00000000 E   *	    call   ExitProcess
- 00000072			main endp
+ 00000061  6A 00	   *	    push   +000000000h
+ 00000063  E8 00000000 E   *	    call   ExitProcess
+ 00000068			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/02/19 03:53:58
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/02/19 04:20:04
 Source.asm						     Symbols 2 - 1
 
 
@@ -370,7 +354,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 0000019F Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000072 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 00000068 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -414,7 +398,7 @@ GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GetValueAtCoords . . . . . . . .	P Near	 0000003F _TEXT	Length= 00000027 Public STDCALL
+GetValueAtCoords . . . . . . . .	P Near	 0000003F _TEXT	Length= 0000001D Public STDCALL
 Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -483,7 +467,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000066 _TEXT	Length= 0000000C Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 0000005C _TEXT	Length= 0000000C Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C

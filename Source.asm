@@ -11,10 +11,10 @@ ExitProcess proto,dwExitCode:dword
 	GenCount SWORD 0
 
 	; Main game board array that will be drawn to the console
-	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	GameBoard BYTE 9, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
 	Rowsize = ($ - GameBoard)
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -90,17 +90,16 @@ DrawGameBoard PROC
 		; possibly do each row at a time, increment Y coordinate for Gotoxy each loop
 
 		; possibly call GetValueAtCoords using dh and dl/
-	mov dh, 0 ; y = 0
-	mov dl, 0 ; x = 0
 
+	mov dh, 0
+	mov dl, 0
 	mov ecx, 20
 	L1:
-		inc dl
 		call GetValueAtCoords	; eax = result
-		call WriteInt
 
+		call WriteInt	; will draw ascii characters with colors instead of ints
+		inc dl
 	loop L1
-
 
 	ret
 DrawGameBoard ENDP
@@ -135,11 +134,10 @@ IncrementGeneration ENDP
 ; Receives: dh = y coordinate
 ;			dl = x coordinate (FIX THIS)
 ; 
-; Returns: EAX = element at coordinates in array
+; Returns: al = element at coordinates in array
 ; Still not working properly. 4/2/19
 ;-----------------------------------------------------
 GetValueAtCoords PROC USES esi ebx edx
-	call DumpRegs
 	mov eax, 0
 	; store array offset in memory
 	mov ebx, OFFSET GameBoard ; table offset
@@ -149,12 +147,12 @@ GetValueAtCoords PROC USES esi ebx edx
 	mul dh	; result of AL * DH stored in AX
 
 	add ebx, eax ; row offset
+
 	; add offset and x coordinate to get [X,Y] in array
 	movzx esi, dl
-	mov eax, [ebx + esi] ; eax = result
-	call DumpRegs
+	mov al, [ebx + esi] ; al = result
+	
 	ret
-
 GetValueAtCoords ENDP
 ;-----------------------------------------------------
 ; main
@@ -162,18 +160,7 @@ GetValueAtCoords ENDP
 ; manages timing and procedure calls 
 ;-----------------------------------------------------
 main PROC
-
-	
-	call DrawGameBoard
-
-	;call DumpRegs
-
-	;mov ecx, 3
-	;L1:
-	;	call DumpRegs
-	;loop L1
-
-;	call DumpRegs
+	call DrawGameBoard	; will be called on a delay
 
 	invoke ExitProcess,0
 main endp
