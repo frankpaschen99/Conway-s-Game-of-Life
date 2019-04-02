@@ -11,7 +11,7 @@ ExitProcess proto,dwExitCode:dword
 	GenCount SWORD 0
 
 	; Main game board array that will be drawn to the console
-	GameBoard BYTE 9, 0, 4, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4
+	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	Rowsize = ($ - GameBoard)
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -89,13 +89,13 @@ DrawGameBoard PROC
 		; we're using ROW-MAJOR ORDER I THINK
 		; possibly do each row at a time, increment Y coordinate for Gotoxy each loop
 
-		; possibly call GetValueAtCoords using dh and dl/
+		; possibly call GetValueAtCoords using dh and dl
 
 	mov dh, 0
 	mov dl, 0
 	mov ecx, 20
 	L1:
-		call GetValueAtCoords	; eax = result
+		call GetValueAtCoords	; al = result
 
 		call WriteInt	; will draw ascii characters with colors instead of ints
 		inc dl
@@ -132,10 +132,9 @@ IncrementGeneration ENDP
 ;
 ; Returns value found at index in gameboard.
 ; Receives: dh = y coordinate
-;			dl = x coordinate (FIX THIS)
+;			dl = x coordinate
 ; 
-; Returns: al = element at coordinates in array
-; Still not working properly. 4/2/19
+; Returns: al = value at coordinates in array (zero indexed)
 ;-----------------------------------------------------
 GetValueAtCoords PROC USES esi ebx edx
 	mov eax, 0
@@ -151,7 +150,7 @@ GetValueAtCoords PROC USES esi ebx edx
 	; add offset and x coordinate to get [X,Y] in array
 	movzx esi, dl
 	mov al, [ebx + esi] ; al = result
-	
+
 	ret
 GetValueAtCoords ENDP
 ;-----------------------------------------------------
