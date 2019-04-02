@@ -11,9 +11,10 @@ ExitProcess proto,dwExitCode:dword
 	GenCount SWORD 0
 
 	; Main game board array that will be drawn to the console
-	GameBoard BYTE 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	Rowsize = ($ - GameBoard)
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			  BYTE 0, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -31,7 +32,6 @@ ExitProcess proto,dwExitCode:dword
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15
 		
 .code
 ;-----------------------------------------------------
@@ -92,10 +92,16 @@ DrawGameBoard PROC
 		; possibly call GetValueAtCoords using dh and dl/
 	mov dh, 0 ; y = 0
 	mov dl, 0 ; x = 0
+
+	mov ecx, 20
 	L1:
-		inc dh	; move cursor down
+		inc dl
+		call GetValueAtCoords	; eax = result
+		call WriteInt
 
 	loop L1
+
+
 	ret
 DrawGameBoard ENDP
 ;-----------------------------------------------------
@@ -130,19 +136,25 @@ IncrementGeneration ENDP
 ;			dl = x coordinate (FIX THIS)
 ; 
 ; Returns: EAX = element at coordinates in array
+; Still not working properly. 4/2/19
 ;-----------------------------------------------------
 GetValueAtCoords PROC USES esi ebx edx
+	call DumpRegs
+	mov eax, 0
 	; store array offset in memory
 	mov ebx, OFFSET GameBoard ; table offset
+
 	; multiply RowSize and y coordinate
 	mov al, RowSize
-	mul dh
+	mul dh	; result of AL * DH stored in AX
 
-	add [ebx], al ; row offset
+	add ebx, eax ; row offset
 	; add offset and x coordinate to get [X,Y] in array
 	movzx esi, dl
 	mov eax, [ebx + esi] ; eax = result
+	call DumpRegs
 	ret
+
 GetValueAtCoords ENDP
 ;-----------------------------------------------------
 ; main
@@ -151,12 +163,8 @@ GetValueAtCoords ENDP
 ;-----------------------------------------------------
 main PROC
 
-
-	; - EXAMPLE PROC CALL - 
-	mov dh, 0
-	mov dl, 0
-	call GetValueAtCoords
-
+	
+	call DrawGameBoard
 
 	;call DumpRegs
 
