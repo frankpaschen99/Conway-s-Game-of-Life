@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/01/19 01:59:09
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/02/19 01:21:03
 Source.asm						     Page 1 - 1
 
 
@@ -34,7 +34,8 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 	   20 23 00
  0000000D 0000				GenCount SWORD 0
 
- 0000000F 00 00 00 00 00		GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+					; Main game board array that will be drawn to the console
+ 0000000F 09 00 00 00 00		GameBoard BYTE 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	   00 00 00 00 00
 	   00 00 00 00 00
 	   00 00 00 00 00
@@ -111,17 +112,21 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 	   00 00 00 00 00
 	   00 00 00 00 00
 	   00 00 00 00 00
- 0000018B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ 0000018B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15
 	   00 00 00 00 00
 	   00 00 00 00 00
-	   00 00 00 00 00
+	   00 00 00 00 0F
 						
  00000000			.code
-				;-------------
-				;  CalculateGeneration
-				;  Returns nothing
-				;  Called each gamestep
-				;-------------
+				;-----------------------------------------------------
+				; CalculateGeneration
+				;
+				; Calculates next game board based on game's rules
+				; Called each gamestep
+				; Receives: N/A
+				;
+				; Returns: N/A
+				;-----------------------------------------------------
  00000000			CalculateGeneration PROC
 
 					; copy the gameboard to the backup board
@@ -132,13 +137,15 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 					; Copy the backup board into the gameboard
  00000000  C3				ret
  00000001			CalculateGeneration ENDP
-
-				;-------------
-				;  GenRandomBoard
-				;  Returns nothing
-				;  Sets random cells in the gameboard to living or dead.
-				;  Called before first generation
-				;-------------
+				;-----------------------------------------------------
+				; GenRandomBoard
+				;
+				; Sets random cells in the gameboard to living or dead.
+				; Called before first generation
+				; Receives: N/A
+				;
+				; Returns: N/A
+				;-----------------------------------------------------
  00000001			GenRandomBoard PROC
 					; LOOP
 						; 1. Iterate through the game board
@@ -146,13 +153,15 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 						; 3. Set current cell to random number
  00000001  C3					ret
  00000002			GenRandomBoard ENDP
-
-				;-------------
-				;  DrawGameBoard
-				;  Returns nothing
-				;  Uses cursor to print the gameboard to the console.
-				;  Called immediately after CalculateGeneration
-				;-------------
+				;-----------------------------------------------------
+				; DrawGameBoard
+				;
+				; Uses cursor to print the gameboard to the console.
+				; Called immediately after CalculateGeneration
+				; Receives: N/A
+				;
+				; Returns: N/A
+				;-----------------------------------------------------
  00000002			DrawGameBoard PROC
 					; LOOP
 						; 1. Iterate through the first row of the game board
@@ -163,6 +172,8 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 						; this might not be right lol
 						; we're using ROW-MAJOR ORDER I THINK
 						; possibly do each row at a time, increment Y coordinate for Gotoxy each loop
+
+						; possibly call GetValueAtCoords using dh and dl/
  00000002  B6 00			mov dh, 0 ; y = 0
  00000004  B2 00			mov dl, 0 ; x = 0
  00000006				L1:
@@ -171,14 +182,15 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  00000008  E2 FC			loop L1
  0000000A  C3				ret
  0000000B			DrawGameBoard ENDP
-
-
-				;-------------
-				;  IncrementGeneration
-				;  Returns nothing
-				;  Prints and increments the generation count
-				;  Called immediately after CalculateGeneration
-				;-------------
+				;-----------------------------------------------------
+				; IncrementGeneration
+				;
+				; Prints and increments the generation count.
+				; Called immediately after CalculateGeneration
+				; Receives: N/A
+				;
+				; Returns: N/A
+				;-----------------------------------------------------
  0000000B			IncrementGeneration PROC
 					; increment gen count
  0000000B  66| FF 05			inc GenCount
@@ -195,54 +207,58 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  0000002A  E8 00000000 E		call WriteInt
  0000002F  C3				ret
  00000030			IncrementGeneration ENDP
-
-				;-------------
-				;  
-				;  
-				;  Prints and increments the generation count
-				;  Called immediately after CalculateGeneration
-				;-------------
-
 				;-----------------------------------------------------
 				; GetValueAtCoords
 				;
 				; Returns value found at index in gameboard.
-				; Receives: 
+				; Receives: dh = y coordinate
+				;			dl = x coordinate (FIX THIS)
 				; 
-				; Returns: AL = element at coordinates in array
+				; Returns: EAX = element at coordinates in array
 				;-----------------------------------------------------
- 00000030			GetValueAtCoords PROC USES esi ebx
+ 00000030			GetValueAtCoords PROC USES esi ebx edx
+					;these will be replaced by registers
  = 00000000				row_index = 0
  = 00000000				column_index = 0
+					
 
  00000030  56		   *	    push   esi
  00000031  53		   *	    push   ebx
- 00000032  BB 0000000F R		mov ebx, OFFSET GameBoard ; table offset
- 00000037  81 C3 00000000		add ebx, RowSize * row_index ; row offset
- 0000003D  BE 00000000			mov esi, column_index
- 00000042  8A 04 33			mov al, [ebx + esi] ; AL
+ 00000032  52		   *	    push   edx
+ 00000033  BB 0000000F R		mov ebx, OFFSET GameBoard ; table offset
+					
+					; multiply RowSize and y coordinate
+ 00000038  B0 14			mov al, RowSize
+ 0000003A  F6 E6			mul dh
+
+					add ebx, al ; row offset
+Source.asm(146) : error A2070:invalid instruction operands
+					
+ 0000003C  0F B6 F2			movzx esi, dl
+ 0000003F  8B 04 33			mov eax, [ebx + esi] ; AL
+ 00000042  E8 00000000 E		call DumpRegs
 					
 					ret
- 00000045  5B		   *	    pop    ebx
- 00000046  5E		   *	    pop    esi
- 00000047  C3		   *	    ret    00000h
- 00000048			GetValueAtCoords ENDP
-				;-------------
-				; MAIN PROC
-				;-------------
- 00000048			main PROC
-					;mov eax, 0
+ 00000047  5A		   *	    pop    edx
+ 00000048  5B		   *	    pop    ebx
+ 00000049  5E		   *	    pop    esi
+ 0000004A  C3		   *	    ret    00000h
+ 0000004B			GetValueAtCoords ENDP
+				;-----------------------------------------------------
+				; main
+				;
+				; manages timing and procedure calls 
+				;-----------------------------------------------------
+ 0000004B			main PROC
 
 
- 00000048  E8 FFFFFFE3			call GetValueAtCoords
- 0000004D  E8 00000000 E		call WriteInt
- 00000052  E8 00000000 E		call DumpRegs
+					; - EXAMPLE PROC CALL - 
+ 0000004B  B6 00			mov dh, 0
+ 0000004D  B2 00			mov dl, 0
+ 0000004F  E8 FFFFFFDC			call GetValueAtCoords
 
 
-
-
-
-
+					;call DumpRegs
 
 					;mov ecx, 3
 					;L1:
@@ -251,14 +267,12 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 
 				;	call DumpRegs
 
-					; main procedure will handle timing and procedure calls
-
 					invoke ExitProcess,0
- 00000057  6A 00	   *	    push   +000000000h
- 00000059  E8 00000000 E   *	    call   ExitProcess
- 0000005E			main endp
+ 00000054  6A 00	   *	    push   +000000000h
+ 00000056  E8 00000000 E   *	    call   ExitProcess
+ 0000005B			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/01/19 01:59:09
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/02/19 01:21:03
 Source.asm						     Symbols 2 - 1
 
 
@@ -353,7 +367,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 0000019F Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000005E Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000005B Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -397,7 +411,7 @@ GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GetValueAtCoords . . . . . . . .	P Near	 00000030 _TEXT	Length= 00000018 Public STDCALL
+GetValueAtCoords . . . . . . . .	P Near	 00000030 _TEXT	Length= 0000001B Public STDCALL
 Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -466,7 +480,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000048 _TEXT	Length= 00000016 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 0000004B _TEXT	Length= 00000010 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -711,4 +725,4 @@ wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
 	   1 Warnings
-	   0 Errors
+	   1 Errors
