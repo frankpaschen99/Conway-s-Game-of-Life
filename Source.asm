@@ -11,7 +11,8 @@ ExitProcess proto,dwExitCode:dword
 	GenCount SWORD 0
 
 	; Main game board array that will be drawn to the console
-	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	; simplify this lol
+	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	Rowsize = ($ - GameBoard)
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -31,9 +32,7 @@ ExitProcess proto,dwExitCode:dword
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-	yIndex DWORD ?
-	xIndex DWORD ?
+			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 .code
 ;-----------------------------------------------------
 ; CalculateGeneration
@@ -79,27 +78,22 @@ GenRandomBoard ENDP
 ;
 ; Returns: N/A
 ;-----------------------------------------------------
+
+.data
+	yCoord DWORD 0
+	xCoord DWORD 0
+	count DWORD ?
+.code
 DrawGameBoard PROC
-	; LOOP
-		; 1. Iterate through the first row of the game board
-		; 2. Move cursor to top left of board
-		; 3. Draw character based on value of gameboard at that index
-		; 4. Move cursor to the left one
-
-		; this might not be right lol
-		; we're using ROW-MAJOR ORDER I THINK
-		; possibly do each row at a time, increment Y coordinate for Gotoxy each loop
-
-		; possibly call GetValueAtCoords using dh and dl
-
-	mov dh, 0
-	mov dl, 0
+	
+	; TODO: loop through array
 	mov ecx, 20
 	L1:
-		call GetValueAtCoords	; al = result
-
-		call WriteInt	; will draw ascii characters with colors instead of ints
-		inc dl
+		mov edx, yCoord	; y
+		mov eax, xCoord	; x
+		call GetValueAtCoords
+		call WriteInt
+		inc xCoord				
 	loop L1
 
 	ret
@@ -136,9 +130,12 @@ IncrementGeneration ENDP
 ;			eax = x coordinate
 ; 
 ; Returns: al = value at coordinates in array (zero indexed)
-;  This STILL doesnt work for y coordinate
 ;-----------------------------------------------------
-GetValueAtCoords PROC USES esi ebx edx
+.data
+	yIndex DWORD ?
+	xIndex DWORD ?
+.code
+GetValueAtCoords PROC USES esi ebx
 	mov yIndex, edx
 	mov xIndex, eax
 
@@ -150,7 +147,7 @@ GetValueAtCoords PROC USES esi ebx edx
 	add ebx, eax ; row offset
 	; add offset and x coordinate to get [X,Y] in array
 	mov esi, xIndex
-	mov ah, 0	; clear top half of reg
+	mov ah, 0	; clear top half of reg NOTE: ONLY NECESSARY FOR WRITEINT PROC. We can just test al for other purposes
 	mov al, [ebx + esi] ; al = result
 
 	ret
@@ -163,10 +160,7 @@ GetValueAtCoords ENDP
 main PROC
 	;call DrawGameBoard	; will be called on a delay
 
-	mov edx, 0
-	mov eax, 0
-	call GetValueAtCoords
-	call WriteInt
+	call DrawGameBoard
 
 
 	invoke ExitProcess,0
