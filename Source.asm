@@ -31,8 +31,9 @@ ExitProcess proto,dwExitCode:dword
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-		
+			  BYTE 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	yIndex DWORD ?
+	xIndex DWORD ?
 .code
 ;-----------------------------------------------------
 ; CalculateGeneration
@@ -131,24 +132,25 @@ IncrementGeneration ENDP
 ; GetValueAtCoords
 ;
 ; Returns value found at index in gameboard.
-; Receives: dh = y coordinate
-;			dl = x coordinate
+; Receives: edx = y coordinate
+;			eax = x coordinate
 ; 
 ; Returns: al = value at coordinates in array (zero indexed)
+;  This STILL doesnt work for y coordinate
 ;-----------------------------------------------------
 GetValueAtCoords PROC USES esi ebx edx
-	mov eax, 0
+	mov yIndex, edx
+	mov xIndex, eax
+
 	; store array offset in memory
 	mov ebx, OFFSET GameBoard ; table offset
-
 	; multiply RowSize and y coordinate
-	mov al, RowSize
-	mul dh	; result of AL * DH stored in AX
-
+	mov eax, RowSize
+	mul yIndex	; result of AL * DH stored in EAX
 	add ebx, eax ; row offset
-
 	; add offset and x coordinate to get [X,Y] in array
-	movzx esi, dl
+	mov esi, xIndex
+	mov ah, 0	; clear top half of reg
 	mov al, [ebx + esi] ; al = result
 
 	ret
@@ -159,7 +161,13 @@ GetValueAtCoords ENDP
 ; manages timing and procedure calls 
 ;-----------------------------------------------------
 main PROC
-	call DrawGameBoard	; will be called on a delay
+	;call DrawGameBoard	; will be called on a delay
+
+	mov edx, 0
+	mov eax, 0
+	call GetValueAtCoords
+	call WriteInt
+
 
 	invoke ExitProcess,0
 main endp
