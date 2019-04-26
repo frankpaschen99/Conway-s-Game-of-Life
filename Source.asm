@@ -43,13 +43,11 @@ ExitProcess proto,dwExitCode:dword
 ;
 ; Returns: N/A
 ;-----------------------------------------------------
-liveCount BYTE 0	; stores # of living neighbors for each cell
 cellState BYTE 0	; 1 or 0, living or dead
 yCoord4 DWORD 0
 xCoord4 DWORD 0
 count4 DWORD 0
-tempX DWORD 0
-tempY DWORD 0
+liveCount2 DWORD 0
 .code
 CalculateGeneration PROC
 
@@ -68,18 +66,13 @@ CalculateGeneration PROC
 
 			mov edx, yCoord4 ; y
 			mov eax, xCoord4 ; x
-			call GetValueAtCoords ; result stored in al
-			mov cellState, al	; used for implementing rules
+			;call GetValueAtCoords ; result stored in al
+			;mov cellState, al	; used for implementing rules
 
-			push xCoord4
-			push yCoord4
+			call CalcLivingNeighbors
+			call DumpRegs
+			;mov liveCount2, ebx
 
-			; mess with xCoord4 and yCoord4 here ...
-
-			pop yCoord4
-			pop xCoord4
-
-			
 
 			inc xCoord4
 		loop L2
@@ -91,6 +84,85 @@ CalculateGeneration PROC
 
 	ret
 CalculateGeneration ENDP
+
+; eax = x, edx = y
+.data
+liveCount BYTE 0	; stores # of living neighbors for each cell
+originalX DWORD 0
+originalY DWORD 0
+.code
+CalcLivingNeighbors PROC
+	mov ebx, 0
+	mov originalX, eax
+	mov originalY, edx
+
+	mov eax, originalX
+	mov edx, originalY
+	call GetBottomCenter
+	.IF (al == 0) || (al == 1)
+		add liveCount, al
+	.ENDIF
+
+	mov ebx, DWORD PTR liveCount
+
+	ret
+CalcLivingNeighbors ENDP
+
+; receives edx=y eax=x 
+; returns al
+.code
+GetBottomLeft PROC
+	dec eax
+	dec edx
+	call GetValueAtCoords
+	ret
+GetBottomLeft ENDP
+
+GetBottomCenter PROC
+	inc edx
+	call GetValueAtCoords
+	ret
+GetBottomCenter ENDP
+
+GetBottomRight PROC
+	inc eax
+	dec edx
+	call GetValueAtCoords
+	ret
+GetBottomRight ENDP
+
+GetLeft PROC
+	dec eax
+	call GetValueAtCoords
+	ret
+GetLeft ENDP
+
+GetRight PROC
+	inc eax
+	call GetValueAtCoords
+	ret
+GetRight ENDP
+
+GetTopLeft PROC
+	dec eax
+	inc edx
+	call GetValueAtCoords
+	ret
+GetTopLeft ENDP
+
+GetTopCenter PROC
+	inc edx
+	call GetValueAtCoords
+	ret
+GetTopCenter ENDP
+
+GetTopRight PROC
+	inc eax
+	inc edx
+	call GetValueAtCoords
+	ret
+GetTopRight ENDP
+
 ;-----------------------------------------------------
 ; GenRandomBoard
 ;
@@ -301,16 +373,32 @@ InvertValueAtCoords ENDP
 main PROC
 	; randomize seed and generate a starting board
 	call Randomize
-	call GenRandomBoard
+	;call GenRandomBoard
 
-	mov ecx, 1000	; game will run for 1000 generations
-	L1:
-		call DrawGameBoard
-		call CalculateGeneration
+	;mov ecx, 1000	; game will run for 1000 generations
+	;L1:
+		
+		;call CalculateGeneration
 		call IncrementGeneration
-		mov eax, 200	; 200 ms delay between generations
-		call Delay		
-	loop L1
+
+
+		mov eax, 0
+		mov edx, 0
+		call InvertValueAtCoords
+		mov eax, 0
+		mov edx, 1
+		call InvertValueAtCoords
+		
+		call DrawGameBoard
+		mov eax, 0
+		mov edx, 0
+		call CalcLivingNeighbors
+		call DumpRegs
+
+
+		;mov eax, 2000	; 200 ms delay between generations
+		;call Delay		
+	;loop L1
 
 	invoke ExitProcess,0
 main endp
