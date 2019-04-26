@@ -61,12 +61,42 @@ CalculateGeneration ENDP
 ;
 ; Returns: N/A
 ;-----------------------------------------------------
+.data
+	yCoord3 DWORD 0
+	xCoord3 DWORD 0
+	count3 DWORD 0
+	randVal DWORD 0
+.code
 GenRandomBoard PROC
-	; LOOP
-		; 1. Iterate through the game board
-		; 2. Generate a number between 0 and 1 (inclusive)
-		; 3. Set current cell to random number
-		ret
+	mov ecx, 20
+
+	L1:	; outer loop
+		mov count3, ecx
+		mov ecx, 20
+		L2: ; inner loop
+
+			mov edx, yCoord3	; y
+			mov eax, xCoord3 ; x
+
+			; preserve eax to use RandomRange
+			push eax
+			mov eax, 2
+			call RandomRange
+			mov randVal, eax
+			pop eax
+
+			.IF randVal > 0
+				call InvertValueAtCoords
+			.ENDIF
+
+			call GetValueAtCoords
+
+			inc xCoord3
+		loop L2
+			mov ecx, count3
+	loop L1
+	
+	ret
 GenRandomBoard ENDP
 ;-----------------------------------------------------
 ; DrawGameBoard
@@ -101,9 +131,9 @@ DrawGameBoard PROC
 			; TODO: Color these, possible find better ASCII characters
 			mov temp, al
 			.IF temp == 0
-				mov al, '-'
+				mov al, 178
 			.ELSEIF temp == 1
-				mov al, '0'
+				mov al, 176
 			.ENDIF
 
 			call WriteChar
@@ -221,7 +251,7 @@ InvertValueAtCoords ENDP
 main PROC
 	;call DrawGameBoard	; will be called on a delay
 
-
+	call GenRandomBoard
 	call DrawGameBoard
 
 
