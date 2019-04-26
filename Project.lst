@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/25/19 23:39:38
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 00:16:07
 Source.asm						     Page 1 - 1
 
 
@@ -35,11 +35,10 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  0000000D 0000				GenCount SWORD 0
 
 					; Main game board array that will be drawn to the console
-					; simplify this lol
- 0000000F 00 00 00 00 00		GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ 0000000F 01 00 00 00 00		GameBoard BYTE 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	   00 00 00 00 00
 	   00 00 00 00 00
-	   00 00 00 00 00
+	   00 00 00 00 01
  00000023 = 00000014			Rowsize = ($ - GameBoard)
  00000023  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	   00 00 00 00 00
@@ -61,10 +60,10 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 	   00 00 00 00 00
 	   00 00 00 00 00
 	   00 00 00 00 00
- 00000087  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ 00000087  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 	   00 00 00 00 00
 	   00 00 00 00 00
-	   00 00 00 00 00
+	   00 00 00 00 01
  0000009B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	   00 00 00 00 00
 	   00 00 00 00 00
@@ -113,10 +112,10 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 	   00 00 00 00 00
 	   00 00 00 00 00
 	   00 00 00 00 00
- 0000018B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+ 0000018B  00 00 00 00 00				  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	   00 00 00 00 00
 	   00 00 00 00 00
-	   00 00 00 00 01
+	   00 00 00 00 00
  00000000			.code
 				;-----------------------------------------------------
 				; CalculateGeneration
@@ -166,22 +165,52 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  0000019F			.data
  0000019F 00000000			yCoord DWORD 0
  000001A3 00000000			xCoord DWORD 0
- 000001A7 00000000			count DWORD ?
+ 000001A7 00000000			count DWORD 0
+ 000001AB 00				temp BYTE ?
  00000002			.code
  00000002			DrawGameBoard PROC
-					
-					; TODO: loop through array
- 00000002  B9 00000014			mov ecx, 20
- 00000007				L1:
- 00000007  8B 15 0000019F R			mov edx, yCoord	; y
- 0000000D  A1 000001A3 R			mov eax, xCoord	; x
- 00000012  E8 00000033				call GetValueAtCoords
- 00000017  E8 00000000 E			call WriteInt
- 0000001C  FF 05 000001A3 R			inc xCoord				
- 00000022  E2 E3			loop L1
 
- 00000024  C3				ret
- 00000025			DrawGameBoard ENDP
+ 00000002  B9 00000014			mov ecx, 20
+
+ 00000007				L1:	; outer loop
+ 00000007  89 0D 000001A7 R			mov count, ecx
+ 0000000D  B9 00000014				mov ecx, 20
+ 00000012					L2: ; inner loop
+
+ 00000012  8B 15 0000019F R				mov edx, yCoord	; y
+ 00000018  A1 000001A3 R				mov eax, xCoord	; x
+
+ 0000001D  E8 0000005D					call GetValueAtCoords
+
+ 00000022  A2 000001AB R				mov temp, al
+							.IF temp == 0
+ 00000027  80 3D 000001AB R
+	   00		   *	    cmp    temp, 000h
+ 0000002E  75 04	   *	    jne    @C0001
+ 00000030  B0 2D						mov al, '-'
+							.ELSEIF temp == 1
+ 00000032  EB 0B	   *	    jmp    @C0003
+ 00000034		   *@C0001:
+ 00000034  80 3D 000001AB R
+	   01		   *	    cmp    temp, 001h
+ 0000003B  75 02	   *	    jne    @C0004
+ 0000003D  B0 30						mov al, '0'
+							.ENDIF
+ 0000003F		   *@C0004:
+ 0000003F		   *@C0003:
+
+ 0000003F  E8 00000000 E				call WriteChar
+
+ 00000044  FF 05 000001A3 R				inc xCoord
+
+ 0000004A  E2 C6				loop L2
+ 0000004C  8B 0D 000001A7 R				mov ecx, count
+ 00000052  E8 00000000 E				call Crlf
+ 00000057  E2 AE			loop L1
+
+					
+ 00000059  C3				ret
+ 0000005A			DrawGameBoard ENDP
 				;-----------------------------------------------------
 				; IncrementGeneration
 				;
@@ -191,22 +220,22 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				;
 				; Returns: N/A
 				;-----------------------------------------------------
- 00000025			IncrementGeneration PROC
+ 0000005A			IncrementGeneration PROC
 					; increment gen count
- 00000025  66| FF 05			inc GenCount
+ 0000005A  66| FF 05			inc GenCount
 	   0000000D R
 					; move cursor to top left
- 0000002C  B6 00			mov dh, 0	; Y
- 0000002E  B2 00			mov dl, 0	; X
- 00000030  E8 00000000 E		call Gotoxy
+ 00000061  B6 00			mov dh, 0	; Y
+ 00000063  B2 00			mov dl, 0	; X
+ 00000065  E8 00000000 E		call Gotoxy
 					; print Generation #:
- 00000035  BA 00000000 R		mov edx, OFFSET GenMsg
- 0000003A  E8 00000000 E		call WriteString      
+ 0000006A  BA 00000000 R		mov edx, OFFSET GenMsg
+ 0000006F  E8 00000000 E		call WriteString      
 					; print actual gen count
- 0000003F  A1 0000000D R		mov eax, DWORD PTR GenCount
- 00000044  E8 00000000 E		call WriteInt
- 00000049  C3				ret
- 0000004A			IncrementGeneration ENDP
+ 00000074  A1 0000000D R		mov eax, DWORD PTR GenCount
+ 00000079  E8 00000000 E		call WriteInt
+ 0000007E  C3				ret
+ 0000007F			IncrementGeneration ENDP
 				;-----------------------------------------------------
 				; GetValueAtCoords
 				;
@@ -216,104 +245,104 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				; 
 				; Returns: al = value at coordinates in array (zero indexed)
 				;-----------------------------------------------------
- 000001AB			.data
- 000001AB 00000000			yIndex DWORD ?
- 000001AF 00000000			xIndex DWORD ?
- 0000004A			.code
- 0000004A			GetValueAtCoords PROC USES esi ebx
- 0000004A  56		   *	    push   esi
- 0000004B  53		   *	    push   ebx
- 0000004C  89 15 000001AB R		mov yIndex, edx
- 00000052  A3 000001AF R		mov xIndex, eax
+ 000001AC			.data
+ 000001AC 00000000			yIndex DWORD ?
+ 000001B0 00000000			xIndex DWORD ?
+ 0000007F			.code
+ 0000007F			GetValueAtCoords PROC USES esi ebx
+ 0000007F  56		   *	    push   esi
+ 00000080  53		   *	    push   ebx
+ 00000081  89 15 000001AC R		mov yIndex, edx
+ 00000087  A3 000001B0 R		mov xIndex, eax
 
 					; store array offset in memory
- 00000057  BB 0000000F R		mov ebx, OFFSET GameBoard ; table offset
+ 0000008C  BB 0000000F R		mov ebx, OFFSET GameBoard ; table offset
 					; multiply RowSize and y coordinate
- 0000005C  B8 00000014			mov eax, RowSize
- 00000061  F7 25 000001AB R		mul yIndex	; result of AL * DH stored in EAX
- 00000067  03 D8			add ebx, eax ; row offset
+ 00000091  B8 00000014			mov eax, RowSize
+ 00000096  F7 25 000001AC R		mul yIndex	; result of AL * DH stored in EAX
+ 0000009C  03 D8			add ebx, eax ; row offset
 					; add offset and x coordinate to get [X,Y] in array
- 00000069  8B 35 000001AF R		mov esi, xIndex
- 0000006F  B4 00			mov ah, 0	; clear top half of reg NOTE: ONLY NECESSARY FOR WRITEINT PROC. We can just test al for other purposes
- 00000071  8A 04 33			mov al, [ebx + esi] ; al = result
+ 0000009E  8B 35 000001B0 R		mov esi, xIndex
+ 000000A4  B4 00			mov ah, 0	; clear top half of reg NOTE: ONLY NECESSARY FOR WRITEINT PROC. We can just test al for other purposes
+ 000000A6  8A 04 33			mov al, [ebx + esi] ; al = result
 
 					ret
- 00000074  5B		   *	    pop    ebx
- 00000075  5E		   *	    pop    esi
- 00000076  C3		   *	    ret    00000h
- 00000077			GetValueAtCoords ENDP
+ 000000A9  5B		   *	    pop    ebx
+ 000000AA  5E		   *	    pop    esi
+ 000000AB  C3		   *	    ret    00000h
+ 000000AC			GetValueAtCoords ENDP
 
- 000001B3			.data
- 000001B3 00000000			yIndex2 DWORD ?
- 000001B7 00000000			xIndex2 DWORD ?
- 00000077			.code
- 00000077			InvertValueAtCoords PROC
- 00000077  89 15 000001B3 R		mov yIndex2, edx
- 0000007D  A3 000001B7 R		mov xIndex2, eax
+				;-----------------------------------------------------
+				; GetValueAtCoords
+				;
+				; Inverts value found at index in gameboard.
+				; Receives: edx = y coordinate
+				;			eax = x coordinate
+				; 
+				; Returns: N/A
+				;-----------------------------------------------------
+ 000001B4			.data
+ 000001B4 00000000			yIndex2 DWORD ?
+ 000001B8 00000000			xIndex2 DWORD ?
+ 000000AC			.code
+ 000000AC			InvertValueAtCoords PROC USES edx eax
+ 000000AC  52		   *	    push   edx
+ 000000AD  50		   *	    push   eax
+ 000000AE  89 15 000001B4 R		mov yIndex2, edx
+ 000000B4  A3 000001B8 R		mov xIndex2, eax
 
- 00000082  BB 0000000F R		mov ebx, OFFSET GameBoard
- 00000087  B8 00000014			mov eax, RowSize
- 0000008C  F7 25 000001B3 R		mul yIndex2
- 00000092  03 D8			add ebx, eax
- 00000094  8B 35 000001B7 R		mov esi, xIndex2
- 0000009A  B4 00			mov ah, 0
- 0000009C  8A 04 33			mov al, [ebx + esi]
+					; same exact thing as GetValueAtCoords
+ 000000B9  BB 0000000F R		mov ebx, OFFSET GameBoard
+ 000000BE  B8 00000014			mov eax, RowSize
+ 000000C3  F7 25 000001B4 R		mul yIndex2
+ 000000C9  03 D8			add ebx, eax
+ 000000CB  8B 35 000001B8 R		mov esi, xIndex2
+ 000000D1  B4 00			mov ah, 0
+ 000000D3  8A 04 33			mov al, [ebx + esi]
 
 					; invert last bit in AL
-
+					; couldnt figure out a better way to do this
 					.IF al == 0001h
- 0000009F  3C 01	   *	    cmp    al, 001h
- 000000A1  75 04	   *	    jne    @C0001
- 000000A3  B0 00				mov al, 0000
+ 000000D6  3C 01	   *	    cmp    al, 001h
+ 000000D8  75 04	   *	    jne    @C0006
+ 000000DA  B0 00				mov al, 0000
 					.ELSEIF al == 0000h
- 000000A5  EB 06	   *	    jmp    @C0003
- 000000A7		   *@C0001:
- 000000A7  0A C0	   *	    or	al, al
- 000000A9  75 02	   *	    jne    @C0004
- 000000AB  B0 01				mov al, 0001h
+ 000000DC  EB 06	   *	    jmp    @C0008
+ 000000DE		   *@C0006:
+ 000000DE  0A C0	   *	    or	al, al
+ 000000E0  75 02	   *	    jne    @C0009
+ 000000E2  B0 01				mov al, 0001h
 					.ENDIF
- 000000AD		   *@C0004:
- 000000AD		   *@C0003:
-
+ 000000E4		   *@C0009:
+ 000000E4		   *@C0008:
 					
-
-
-
- 000000AD  88 04 33			mov [ebx+esi], al ; al = result 
- 000000B0  E8 00000000 E		call Dumpregs
-
- 000000B5  C3				ret
- 000000B6			InvertValueAtCoords ENDP
+					; move the new value to the array
+ 000000E4  88 04 33			mov [ebx+esi], al
+					ret
+ 000000E7  58		   *	    pop    eax
+ 000000E8  5A		   *	    pop    edx
+ 000000E9  C3		   *	    ret    00000h
+ 000000EA			InvertValueAtCoords ENDP
 				;-----------------------------------------------------
 				; main
 				;
 				; manages timing and procedure calls 
 				;-----------------------------------------------------
 
- 000000B6			.code
- 000000B6			main PROC
+ 000000EA			.code
+ 000000EA			main PROC
 					;call DrawGameBoard	; will be called on a delay
 
- 000000B6  BA 00000013			mov edx, 19
- 000000BB  B8 00000013			mov eax, 19
 
- 000000C0  E8 FFFFFFB2			call InvertValueAtCoords
-					
-
- 000000C5  B8 00000013			mov eax, 19
- 000000CA  BA 00000013			mov edx, 19
- 000000CF  E8 FFFFFF76			call GetValueAtCoords
- 000000D4  E8 00000000 E		call WriteInt
-
-					;call DrawGameBoard
+ 000000EA  E8 FFFFFF13			call DrawGameBoard
 
 
 					invoke ExitProcess,0
- 000000D9  6A 00	   *	    push   +000000000h
- 000000DB  E8 00000000 E   *	    call   ExitProcess
- 000000E0			main endp
+ 000000EF  6A 00	   *	    push   +000000000h
+ 000000F1  E8 00000000 E   *	    call   ExitProcess
+ 000000F6			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/25/19 23:39:38
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 00:16:07
 Source.asm						     Symbols 2 - 1
 
 
@@ -407,8 +436,8 @@ Segments and Groups:
 
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
-_DATA  . . . . . . . . . . . . .	32 Bit	 000001BB Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 000000E0 Para	  Public  'CODE'	
+_DATA  . . . . . . . . . . . . .	32 Bit	 000001BC Para	  Public  'DATA'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 000000F6 Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -423,8 +452,9 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DrawGameBoard  . . . . . . . . .	P Near	 00000002 _TEXT	Length= 00000023 Public STDCALL
+DrawGameBoard  . . . . . . . . .	P Near	 00000002 _TEXT	Length= 00000058 Public STDCALL
   L1 . . . . . . . . . . . . . .	L Near	 00000007 _TEXT	
+  L2 . . . . . . . . . . . . . .	L Near	 00000012 _TEXT	
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -452,15 +482,15 @@ GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GetValueAtCoords . . . . . . . .	P Near	 0000004A _TEXT	Length= 0000002D Public STDCALL
+GetValueAtCoords . . . . . . . .	P Near	 0000007F _TEXT	Length= 0000002D Public STDCALL
 Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-IncrementGeneration  . . . . . .	P Near	 00000025 _TEXT	Length= 00000025 Public STDCALL
-InvertValueAtCoords  . . . . . .	P Near	 00000077 _TEXT	Length= 0000003F Public STDCALL
+IncrementGeneration  . . . . . .	P Near	 0000005A _TEXT	Length= 00000025 Public STDCALL
+InvertValueAtCoords  . . . . . .	P Near	 000000AC _TEXT	Length= 0000003E Public STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -522,7 +552,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 000000B6 _TEXT	Length= 0000002A Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 000000EA _TEXT	Length= 0000000C Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
@@ -761,14 +791,15 @@ lightMagenta . . . . . . . . . .	Number	 0000000Dh
 lightRed . . . . . . . . . . . .	Number	 0000000Ch   
 magenta  . . . . . . . . . . . .	Number	 00000005h   
 red  . . . . . . . . . . . . . .	Number	 00000004h   
+temp . . . . . . . . . . . . . .	Byte	 000001AB _DATA	
 white  . . . . . . . . . . . . .	Number	 0000000Fh   
 wsprintf . . . . . . . . . . . .	Text   	 wsprintfA
 xCoord . . . . . . . . . . . . .	DWord	 000001A3 _DATA	
-xIndex2  . . . . . . . . . . . .	DWord	 000001B7 _DATA	
-xIndex . . . . . . . . . . . . .	DWord	 000001AF _DATA	
+xIndex2  . . . . . . . . . . . .	DWord	 000001B8 _DATA	
+xIndex . . . . . . . . . . . . .	DWord	 000001B0 _DATA	
 yCoord . . . . . . . . . . . . .	DWord	 0000019F _DATA	
-yIndex2  . . . . . . . . . . . .	DWord	 000001B3 _DATA	
-yIndex . . . . . . . . . . . . .	DWord	 000001AB _DATA	
+yIndex2  . . . . . . . . . . . .	DWord	 000001B4 _DATA	
+yIndex . . . . . . . . . . . . .	DWord	 000001AC _DATA	
 yellow . . . . . . . . . . . . .	Number	 0000000Eh   
 
 	   1 Warnings

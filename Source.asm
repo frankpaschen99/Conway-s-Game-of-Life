@@ -11,7 +11,6 @@ ExitProcess proto,dwExitCode:dword
 	GenCount SWORD 0
 
 	; Main game board array that will be drawn to the console
-	; simplify this lol
 	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	Rowsize = ($ - GameBoard)
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -32,7 +31,7 @@ ExitProcess proto,dwExitCode:dword
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 .code
 ;-----------------------------------------------------
 ; CalculateGeneration
@@ -82,20 +81,41 @@ GenRandomBoard ENDP
 .data
 	yCoord DWORD 0
 	xCoord DWORD 0
-	count DWORD ?
+	count DWORD 0
+	temp BYTE ?
 .code
 DrawGameBoard PROC
-	
-	; TODO: loop through array
+
 	mov ecx, 20
-	L1:
-		mov edx, yCoord	; y
-		mov eax, xCoord	; x
-		call GetValueAtCoords
-		call WriteInt
-		inc xCoord				
+
+	L1:	; outer loop
+		mov count, ecx
+		mov ecx, 20
+		L2: ; inner loop
+
+			mov edx, yCoord	; y
+			mov eax, xCoord	; x
+
+			call GetValueAtCoords
+			
+			; TODO: Color these, possible find better ASCII characters
+			mov temp, al
+			.IF temp == 0
+				mov al, '-'
+			.ELSEIF temp == 1
+				mov al, '0'
+			.ENDIF
+
+			call WriteChar
+
+			inc xCoord
+
+		loop L2
+			mov ecx, count
+			call Crlf
 	loop L1
 
+	
 	ret
 DrawGameBoard ENDP
 ;-----------------------------------------------------
@@ -153,11 +173,20 @@ GetValueAtCoords PROC USES esi ebx
 	ret
 GetValueAtCoords ENDP
 
+;-----------------------------------------------------
+; GetValueAtCoords
+;
+; Inverts value found at index in gameboard.
+; Receives: edx = y coordinate
+;			eax = x coordinate
+; 
+; Returns: N/A
+;-----------------------------------------------------
 .data
 	yIndex2 DWORD ?
 	xIndex2 DWORD ?
 .code
-InvertValueAtCoords PROC
+InvertValueAtCoords PROC USES edx eax
 	mov yIndex2, edx
 	mov xIndex2, eax
 
@@ -192,18 +221,8 @@ InvertValueAtCoords ENDP
 main PROC
 	;call DrawGameBoard	; will be called on a delay
 
-	mov edx, 19
-	mov eax, 19
 
-	call InvertValueAtCoords
-	
-
-	mov eax, 19
-	mov edx, 19
-	call GetValueAtCoords
-	call WriteInt
-
-	;call DrawGameBoard
+	call DrawGameBoard
 
 
 	invoke ExitProcess,0
