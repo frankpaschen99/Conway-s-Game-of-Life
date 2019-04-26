@@ -12,7 +12,7 @@ ExitProcess proto,dwExitCode:dword
 
 	; Main game board array that will be drawn to the console
 	; simplify this lol
-	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
+	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	Rowsize = ($ - GameBoard)
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -32,7 +32,7 @@ ExitProcess proto,dwExitCode:dword
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 .code
 ;-----------------------------------------------------
 ; CalculateGeneration
@@ -152,15 +152,58 @@ GetValueAtCoords PROC USES esi ebx
 
 	ret
 GetValueAtCoords ENDP
+
+.data
+	yIndex2 DWORD ?
+	xIndex2 DWORD ?
+.code
+InvertValueAtCoords PROC
+	mov yIndex2, edx
+	mov xIndex2, eax
+
+	; same exact thing as GetValueAtCoords
+	mov ebx, OFFSET GameBoard
+	mov eax, RowSize
+	mul yIndex2
+	add ebx, eax
+	mov esi, xIndex2
+	mov ah, 0
+	mov al, [ebx + esi]
+
+	; invert last bit in AL
+	; couldnt figure out a better way to do this
+	.IF al == 0001h
+		mov al, 0000
+	.ELSEIF al == 0000h
+		mov al, 0001h
+	.ENDIF
+	
+	; move the new value to the array
+	mov [ebx+esi], al
+	ret
+InvertValueAtCoords ENDP
 ;-----------------------------------------------------
 ; main
 ;
 ; manages timing and procedure calls 
 ;-----------------------------------------------------
+
+.code
 main PROC
 	;call DrawGameBoard	; will be called on a delay
 
-	call DrawGameBoard
+	mov edx, 19
+	mov eax, 19
+
+	call InvertValueAtCoords
+	
+
+	mov eax, 19
+	mov edx, 19
+	call GetValueAtCoords
+	call WriteInt
+
+	;call DrawGameBoard
 
 
 	invoke ExitProcess,0
