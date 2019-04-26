@@ -11,27 +11,28 @@ ExitProcess proto,dwExitCode:dword
 	GenCount SWORD 0
 
 	; Main game board array that will be drawn to the console
-	GameBoard BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	GameBoard BYTE 20 DUP(0)
 	Rowsize = ($ - GameBoard)
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-			  BYTE 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+
 .code
 ;-----------------------------------------------------
 ; CalculateGeneration
@@ -97,6 +98,9 @@ GenRandomBoard PROC
 			mov ecx, count3
 	loop L1
 	
+	mov yCoord3, 0
+	mov xCoord3, 0
+
 	ret
 GenRandomBoard ENDP
 ;-----------------------------------------------------
@@ -116,6 +120,7 @@ GenRandomBoard ENDP
 	temp BYTE ?
 .code
 DrawGameBoard PROC
+	call Clrscr
 
 	mov ecx, 20
 
@@ -146,6 +151,8 @@ DrawGameBoard PROC
 			call Crlf
 	loop L1
 
+	mov yCoord, 0
+	mov xCoord, 0
 	
 	ret
 DrawGameBoard ENDP
@@ -250,11 +257,17 @@ InvertValueAtCoords ENDP
 
 .code
 main PROC
+	; randomize seed and generate a starting board
 	call Randomize
-	 
 	call GenRandomBoard
-	call DrawGameBoard
+	
 
+	mov ecx, 1000	; game will run for 1000 generations
+	L1:
+		call DrawGameBoard	
+		mov eax, 200	; 200 ms delay between generations
+		call Delay		
+	loop L1
 
 	invoke ExitProcess,0
 main endp
