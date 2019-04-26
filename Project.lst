@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 16:06:20
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 18:10:53
 Source.asm						     Page 1 - 1
 
 
@@ -162,9 +162,10 @@ Source.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  0000004F  A3 000001B0 R		mov originalX, eax
  00000054  89 15 000001B4 R		mov originalY, edx
 
+					
  0000005A  A1 000001B0 R		mov eax, originalX
  0000005F  8B 15 000001B4 R		mov edx, originalY
- 00000065  E8 0000001D			call GetBottomCenter
+ 00000065  E8 000000E7			call GetBottomLeft
 					.IF (al == 0) || (al == 1)
  0000006A  0A C0	   *	    or	al, al
  0000006C  74 04	   *	    je	@C0002
@@ -175,65 +176,171 @@ Source.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 					.ENDIF
  00000078		   *@C0001:
 
- 00000078  8B 1D 000001AF R		mov ebx, DWORD PTR liveCount
+ 00000078  A1 000001B0 R		mov eax, originalX
+ 0000007D  8B 15 000001B4 R		mov edx, originalY
+ 00000083  E8 000000D3			call GetBottomCenter
+					.IF (al == 0) || (al == 1)
+ 00000088  0A C0	   *	    or	al, al
+ 0000008A  74 04	   *	    je	@C0005
+ 0000008C  3C 01	   *	    cmp    al, 001h
+ 0000008E  75 06	   *	    jne    @C0004
+ 00000090		   *@C0005:
+ 00000090  00 05 000001AF R			add liveCount, al
+					.ENDIF
+ 00000096		   *@C0004:
 
- 0000007E  C3				ret
- 0000007F			CalcLivingNeighbors ENDP
+ 00000096  A1 000001B0 R		mov eax, originalX
+ 0000009B  8B 15 000001B4 R		mov edx, originalY
+ 000000A1  E8 000000BC			call GetBottomRight
+					.IF (al == 0) || (al == 1)
+ 000000A6  0A C0	   *	    or	al, al
+ 000000A8  74 04	   *	    je	@C0008
+ 000000AA  3C 01	   *	    cmp    al, 001h
+ 000000AC  75 06	   *	    jne    @C0007
+ 000000AE		   *@C0008:
+ 000000AE  00 05 000001AF R			add liveCount, al
+					.ENDIF
+ 000000B4		   *@C0007:
+
+ 000000B4  A1 000001B0 R		mov eax, originalX
+ 000000B9  8B 15 000001B4 R		mov edx, originalY
+ 000000BF  E8 000000AF			call GetRight
+					.IF (al == 0) || (al == 1)
+ 000000C4  0A C0	   *	    or	al, al
+ 000000C6  74 04	   *	    je	@C000B
+ 000000C8  3C 01	   *	    cmp    al, 001h
+ 000000CA  75 06	   *	    jne    @C000A
+ 000000CC		   *@C000B:
+ 000000CC  00 05 000001AF R			add liveCount, al
+					.ENDIF
+ 000000D2		   *@C000A:
+
+ 000000D2  A1 000001B0 R		mov eax, originalX
+ 000000D7  8B 15 000001B4 R		mov edx, originalY
+ 000000DD  E8 00000088			call GetLeft
+					.IF (al == 0) || (al == 1)
+ 000000E2  0A C0	   *	    or	al, al
+ 000000E4  74 04	   *	    je	@C000E
+ 000000E6  3C 01	   *	    cmp    al, 001h
+ 000000E8  75 06	   *	    jne    @C000D
+ 000000EA		   *@C000E:
+ 000000EA  00 05 000001AF R			add liveCount, al
+					.ENDIF
+ 000000F0		   *@C000D:
+
+ 000000F0  A1 000001B0 R		mov eax, originalX
+ 000000F5  8B 15 000001B4 R		mov edx, originalY
+ 000000FB  E8 0000007A			call GetTopLeft
+					.IF (al == 0) || (al == 1)
+ 00000100  0A C0	   *	    or	al, al
+ 00000102  74 04	   *	    je	@C0011
+ 00000104  3C 01	   *	    cmp    al, 001h
+ 00000106  75 06	   *	    jne    @C0010
+ 00000108		   *@C0011:
+ 00000108  00 05 000001AF R			add liveCount, al
+					.ENDIF
+ 0000010E		   *@C0010:
+
+ 0000010E  A1 000001B0 R		mov eax, originalX
+ 00000113  8B 15 000001B4 R		mov edx, originalY
+ 00000119  E8 00000068			call GetTopCenter
+					.IF (al == 0) || (al == 1)
+ 0000011E  0A C0	   *	    or	al, al
+ 00000120  74 04	   *	    je	@C0014
+ 00000122  3C 01	   *	    cmp    al, 001h
+ 00000124  75 06	   *	    jne    @C0013
+ 00000126		   *@C0014:
+ 00000126  00 05 000001AF R			add liveCount, al
+					.ENDIF
+ 0000012C		   *@C0013:
+
+ 0000012C  A1 000001B0 R		mov eax, originalX
+ 00000131  8B 15 000001B4 R		mov edx, originalY
+ 00000137  E8 00000053			call GetTopRight
+					.IF (al == 0) || (al == 1)
+ 0000013C  0A C0	   *	    or	al, al
+ 0000013E  74 04	   *	    je	@C0017
+ 00000140  3C 01	   *	    cmp    al, 001h
+ 00000142  75 06	   *	    jne    @C0016
+ 00000144		   *@C0017:
+ 00000144  00 05 000001AF R			add liveCount, al
+					.ENDIF
+ 0000014A		   *@C0016:
+
+
+ 0000014A  8B 1D 000001AF R		mov ebx, DWORD PTR liveCount
+
+ 00000150  C3				ret
+ 00000151			CalcLivingNeighbors ENDP
 
 				; receives edx=y eax=x 
 				; returns al
- 0000007F			.code
- 0000007F			GetBottomLeft PROC
- 0000007F  48				dec eax
- 00000080  4A				dec edx
- 00000081  E8 0000013E			call GetValueAtCoords
- 00000086  C3				ret
- 00000087			GetBottomLeft ENDP
+ 00000151			.code
+ 00000151			GetBottomLeft PROC
+ 00000151  48				dec eax
+ 00000152  78 06			js L1
+ 00000154  42				inc edx
+ 00000155  E8 00000148			call GetValueAtCoords
 
- 00000087			GetBottomCenter PROC
- 00000087  42				inc edx
- 00000088  E8 00000137			call GetValueAtCoords
- 0000008D  C3				ret
- 0000008E			GetBottomCenter ENDP
+ 0000015A				L1:
+ 0000015A  C3				ret
+ 0000015B			GetBottomLeft ENDP
 
- 0000008E			GetBottomRight PROC
- 0000008E  40				inc eax
- 0000008F  4A				dec edx
- 00000090  E8 0000012F			call GetValueAtCoords
- 00000095  C3				ret
- 00000096			GetBottomRight ENDP
+ 0000015B			GetBottomCenter PROC
+ 0000015B  42				inc edx
+ 0000015C  E8 00000141			call GetValueAtCoords
+ 00000161  C3				ret
+ 00000162			GetBottomCenter ENDP
 
- 00000096			GetLeft PROC
- 00000096  48				dec eax
- 00000097  E8 00000128			call GetValueAtCoords
- 0000009C  C3				ret
- 0000009D			GetLeft ENDP
+ 00000162			GetBottomRight PROC
+ 00000162  40				inc eax
+ 00000163  42				inc edx
+ 00000164  E8 00000139			call GetValueAtCoords
+ 00000169  C3				ret
+ 0000016A			GetBottomRight ENDP
 
- 0000009D			GetRight PROC
- 0000009D  40				inc eax
- 0000009E  E8 00000121			call GetValueAtCoords
- 000000A3  C3				ret
- 000000A4			GetRight ENDP
+ 0000016A			GetLeft PROC
+ 0000016A  48				dec eax
+ 0000016B  78 05			js L1	; return if eax is negative (moving off the gameboard)
+ 0000016D  E8 00000130			call GetValueAtCoords
+ 00000172				L1:
+ 00000172  C3				ret
+ 00000173			GetLeft ENDP
 
- 000000A4			GetTopLeft PROC
- 000000A4  48				dec eax
- 000000A5  42				inc edx
- 000000A6  E8 00000119			call GetValueAtCoords
- 000000AB  C3				ret
- 000000AC			GetTopLeft ENDP
+ 00000173			GetRight PROC
+ 00000173  40				inc eax
+ 00000174  E8 00000129			call GetValueAtCoords
+ 00000179  C3				ret
+ 0000017A			GetRight ENDP
 
- 000000AC			GetTopCenter PROC
- 000000AC  42				inc edx
- 000000AD  E8 00000112			call GetValueAtCoords
- 000000B2  C3				ret
- 000000B3			GetTopCenter ENDP
+ 0000017A			GetTopLeft PROC
+ 0000017A  48				dec eax
+ 0000017B  78 08			js L1
+ 0000017D  4A				dec edx
+ 0000017E  78 05			js L1
+ 00000180  E8 0000011D			call GetValueAtCoords
+					
+ 00000185				L1:
+ 00000185  C3				ret
+ 00000186			GetTopLeft ENDP
 
- 000000B3			GetTopRight PROC
- 000000B3  40				inc eax
- 000000B4  42				inc edx
- 000000B5  E8 0000010A			call GetValueAtCoords
- 000000BA  C3				ret
- 000000BB			GetTopRight ENDP
+ 00000186			GetTopCenter PROC
+ 00000186  4A				dec edx
+ 00000187  78 05			js L1
+ 00000189  E8 00000114			call GetValueAtCoords
+ 0000018E				L1:
+ 0000018E  C3				ret
+ 0000018F			GetTopCenter ENDP
+
+ 0000018F			GetTopRight PROC
+ 0000018F  40				inc eax
+ 00000190  4A				dec edx
+ 00000191  78 05			js L1
+ 00000193  E8 0000010A			call GetValueAtCoords
+
+ 00000198				L1:
+ 00000198  C3				ret
+ 00000199			GetTopRight ENDP
 
 				;-----------------------------------------------------
 				; GenRandomBoard
@@ -249,48 +356,48 @@ Source.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  000001BC 00000000			xCoord3 DWORD 0
  000001C0 00000000			count3 DWORD 0
  000001C4 00000000			randVal DWORD 0
- 000000BB			.code
- 000000BB			GenRandomBoard PROC
- 000000BB  B9 00000014			mov ecx, 20
+ 00000199			.code
+ 00000199			GenRandomBoard PROC
+ 00000199  B9 00000014			mov ecx, 20
 
- 000000C0				L1:	; outer loop
- 000000C0  89 0D 000001C0 R			mov count3, ecx
- 000000C6  B9 00000014				mov ecx, 20
- 000000CB					L2: ; inner loop
+ 0000019E				L1:	; outer loop
+ 0000019E  89 0D 000001C0 R			mov count3, ecx
+ 000001A4  B9 00000014				mov ecx, 20
+ 000001A9					L2: ; inner loop
 
- 000000CB  8B 15 000001B8 R				mov edx, yCoord3	; y
- 000000D1  A1 000001BC R				mov eax, xCoord3 ; x
+ 000001A9  8B 15 000001B8 R				mov edx, yCoord3	; y
+ 000001AF  A1 000001BC R				mov eax, xCoord3 ; x
 
 							; preserve eax to use RandomRange
- 000000D6  50						push eax
- 000000D7  B8 00000002					mov eax, 2
+ 000001B4  50						push eax
+ 000001B5  B8 00000002					mov eax, 2
 
- 000000DC  E8 00000000 E				call RandomRange
- 000000E1  A3 000001C4 R				mov randVal, eax
- 000000E6  58						pop eax
+ 000001BA  E8 00000000 E				call RandomRange
+ 000001BF  A3 000001C4 R				mov randVal, eax
+ 000001C4  58						pop eax
 
 							.IF randVal > 0
- 000000E7  83 3D 000001C4 R
+ 000001C5  83 3D 000001C4 R
 	   00		   *	    cmp    randVal, 000h
- 000000EE  76 05	   *	    jbe    @C0004
- 000000F0  E8 000000FC						call InvertValueAtCoords
+ 000001CC  76 05	   *	    jbe    @C0019
+ 000001CE  E8 000000FC						call InvertValueAtCoords
 							.ENDIF
- 000000F5		   *@C0004:
+ 000001D3		   *@C0019:
 
- 000000F5  E8 000000CA					call GetValueAtCoords
+ 000001D3  E8 000000CA					call GetValueAtCoords
 
- 000000FA  FF 05 000001BC R				inc xCoord3
- 00000100  E2 C9				loop L2
- 00000102  8B 0D 000001C0 R				mov ecx, count3
- 00000108  E2 B6			loop L1
+ 000001D8  FF 05 000001BC R				inc xCoord3
+ 000001DE  E2 C9				loop L2
+ 000001E0  8B 0D 000001C0 R				mov ecx, count3
+ 000001E6  E2 B6			loop L1
 					
- 0000010A  C7 05 000001B8 R		mov yCoord3, 0
+ 000001E8  C7 05 000001B8 R		mov yCoord3, 0
 	   00000000
- 00000114  C7 05 000001BC R		mov xCoord3, 0
+ 000001F2  C7 05 000001BC R		mov xCoord3, 0
 	   00000000
 
- 0000011E  C3				ret
- 0000011F			GenRandomBoard ENDP
+ 000001FC  C3				ret
+ 000001FD			GenRandomBoard ENDP
 				;-----------------------------------------------------
 				; DrawGameBoard
 				;
@@ -303,59 +410,59 @@ Source.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 
  000001C8			.data
  000001C8 00000000			yCoord DWORD 0
- 000001CC 00000000	xCoord DWORD 0
+ 000001CC 00000000			xCoord DWORD 0
  000001D0 00000000			count DWORD 0
  000001D4 00				temp BYTE ?
- 0000011F			.code
- 0000011F			DrawGameBoard PROC
- 0000011F  E8 00000000 E		call Clrscr
- 00000124  E8 00000000 E		call Crlf
- 00000129  B9 00000014			mov ecx, 20
+ 000001FD			.code
+ 000001FD			DrawGameBoard PROC
+ 000001FD  E8 00000000 E		call Clrscr
+ 00000202  E8 00000000 E		call Crlf
+ 00000207  B9 00000014			mov ecx, 20
 
- 0000012E				L1:	; outer loop
- 0000012E  89 0D 000001D0 R			mov count, ecx
- 00000134  B9 00000014				mov ecx, 20
- 00000139					L2: ; inner loop
+ 0000020C				L1:	; outer loop
+ 0000020C  89 0D 000001D0 R			mov count, ecx
+ 00000212  B9 00000014				mov ecx, 20
+ 00000217					L2: ; inner loop
 
- 00000139  8B 15 000001C8 R				mov edx, yCoord	; y
- 0000013F  A1 000001CC R				mov eax, xCoord	; x
+ 00000217  8B 15 000001C8 R				mov edx, yCoord	; y
+ 0000021D  A1 000001CC R				mov eax, xCoord	; x
 
- 00000144  E8 0000007B					call GetValueAtCoords
+ 00000222  E8 0000007B					call GetValueAtCoords
 							
 							; TODO: Color these, possible find better ASCII characters
- 00000149  A2 000001D4 R				mov temp, al
+ 00000227  A2 000001D4 R				mov temp, al
 							.IF temp == 0
- 0000014E  80 3D 000001D4 R
+ 0000022C  80 3D 000001D4 R
 	   00		   *	    cmp    temp, 000h
- 00000155  75 04	   *	    jne    @C0006
- 00000157  B0 B2						mov al, 178
+ 00000233  75 04	   *	    jne    @C001B
+ 00000235  B0 B2						mov al, 178
 							.ELSEIF temp == 1
- 00000159  EB 0B	   *	    jmp    @C0008
- 0000015B		   *@C0006:
- 0000015B  80 3D 000001D4 R
+ 00000237  EB 0B	   *	    jmp    @C001D
+ 00000239		   *@C001B:
+ 00000239  80 3D 000001D4 R
 	   01		   *	    cmp    temp, 001h
- 00000162  75 02	   *	    jne    @C0009
- 00000164  B0 B0						mov al, 176
+ 00000240  75 02	   *	    jne    @C001E
+ 00000242  B0 B0						mov al, 176
 							.ENDIF
- 00000166		   *@C0009:
- 00000166		   *@C0008:
+ 00000244		   *@C001E:
+ 00000244		   *@C001D:
 
- 00000166  E8 00000000 E				call WriteChar
+ 00000244  E8 00000000 E				call WriteChar
 
- 0000016B  FF 05 000001CC R				inc xCoord
+ 00000249  FF 05 000001CC R				inc xCoord
 
- 00000171  E2 C6				loop L2
- 00000173  8B 0D 000001D0 R				mov ecx, count
- 00000179  E8 00000000 E				call Crlf
- 0000017E  E2 AE			loop L1
+ 0000024F  E2 C6				loop L2
+ 00000251  8B 0D 000001D0 R				mov ecx, count
+ 00000257  E8 00000000 E				call Crlf
+ 0000025C  E2 AE			loop L1
 
- 00000180  C7 05 000001C8 R		mov yCoord, 0
+ 0000025E  C7 05 000001C8 R		mov yCoord, 0
 	   00000000
- 0000018A  C7 05 000001CC R		mov xCoord, 0
+ 00000268  C7 05 000001CC R		mov xCoord, 0
 	   00000000
 					
- 00000194  C3				ret
- 00000195			DrawGameBoard ENDP
+ 00000272  C3				ret
+ 00000273			DrawGameBoard ENDP
 				;-----------------------------------------------------
 				; IncrementGeneration
 				;
@@ -365,30 +472,30 @@ Source.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				;
 				; Returns: N/A
 				;-----------------------------------------------------
- 00000195			IncrementGeneration PROC USES eax edx
- 00000195  50		   *	    push   eax
- 00000196  52		   *	    push   edx
- 00000197  B8 00000000			mov eax, 0
+ 00000273			IncrementGeneration PROC USES eax edx
+ 00000273  50		   *	    push   eax
+ 00000274  52		   *	    push   edx
+ 00000275  B8 00000000			mov eax, 0
 					; increment gen count
- 0000019C  FE 05 0000000D R		inc genCount
+ 0000027A  FE 05 0000000D R		inc genCount
 					; move cursor to top left
- 000001A2  B6 00			mov dh, 0	; Y
- 000001A4  B2 00			mov dl, 0	; X
- 000001A6  E8 00000000 E		call Gotoxy
+ 00000280  B6 00			mov dh, 0	; Y
+ 00000282  B2 00			mov dl, 0	; X
+ 00000284  E8 00000000 E		call Gotoxy
 					; print Generation #:
- 000001AB  BA 00000000 R		mov edx, OFFSET genMsg
- 000001B0  E8 00000000 E		call WriteString      
+ 00000289  BA 00000000 R		mov edx, OFFSET genMsg
+ 0000028E  E8 00000000 E		call WriteString      
 					; print actual gen count
- 000001B5  A0 0000000D R		mov al, genCount
- 000001BA  B4 00			mov ah, 0
+ 00000293  A0 0000000D R		mov al, genCount
+ 00000298  B4 00			mov ah, 0
 
- 000001BC  E8 00000000 E		call WriteDec
+ 0000029A  E8 00000000 E		call WriteDec
 
 					ret
- 000001C1  5A		   *	    pop    edx
- 000001C2  58		   *	    pop    eax
- 000001C3  C3		   *	    ret    00000h
- 000001C4			IncrementGeneration ENDP
+ 0000029F  5A		   *	    pop    edx
+ 000002A0  58		   *	    pop    eax
+ 000002A1  C3		   *	    ret    00000h
+ 000002A2			IncrementGeneration ENDP
 				;-----------------------------------------------------
 				; GetValueAtCoords
 				;
@@ -401,29 +508,29 @@ Source.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  000001D5			.data
  000001D5 00000000			yIndex DWORD ?
  000001D9 00000000			xIndex DWORD ?
- 000001C4			.code
- 000001C4			GetValueAtCoords PROC USES esi ebx
- 000001C4  56		   *	    push   esi
- 000001C5  53		   *	    push   ebx
- 000001C6  89 15 000001D5 R		mov yIndex, edx
- 000001CC  A3 000001D9 R		mov xIndex, eax
+ 000002A2			.code
+ 000002A2			GetValueAtCoords PROC USES esi ebx
+ 000002A2  56		   *	    push   esi
+ 000002A3  53		   *	    push   ebx
+ 000002A4  89 15 000001D5 R		mov yIndex, edx
+ 000002AA  A3 000001D9 R		mov xIndex, eax
 
 					; store array offset in memory
- 000001D1  BB 0000000E R		mov ebx, OFFSET GameBoard ; table offset
+ 000002AF  BB 0000000E R		mov ebx, OFFSET GameBoard ; table offset
 					; multiply RowSize and y coordinate
- 000001D6  B8 00000014			mov eax, RowSize
- 000001DB  F7 25 000001D5 R		mul yIndex	; result of AL * DH stored in EAX
- 000001E1  03 D8			add ebx, eax ; row offset
+ 000002B4  B8 00000014			mov eax, RowSize
+ 000002B9  F7 25 000001D5 R		mul yIndex	; result of AL * DH stored in EAX
+ 000002BF  03 D8			add ebx, eax ; row offset
 					; add offset and x coordinate to get [X,Y] in array
- 000001E3  8B 35 000001D9 R		mov esi, xIndex
- 000001E9  B4 00			mov ah, 0	; clear top half of reg NOTE: ONLY NECESSARY FOR WRITEINT PROC. We can just test al for other purposes
- 000001EB  8A 04 33			mov al, [ebx + esi] ; al = result
+ 000002C1  8B 35 000001D9 R		mov esi, xIndex
+ 000002C7  B4 00			mov ah, 0	; clear top half of reg NOTE: ONLY NECESSARY FOR WRITEINT PROC. We can just test al for other purposes
+ 000002C9  8A 04 33			mov al, [ebx + esi] ; al = result
 
 					ret
- 000001EE  5B		   *	    pop    ebx
- 000001EF  5E		   *	    pop    esi
- 000001F0  C3		   *	    ret    00000h
- 000001F1			GetValueAtCoords ENDP
+ 000002CC  5B		   *	    pop    ebx
+ 000002CD  5E		   *	    pop    esi
+ 000002CE  C3		   *	    ret    00000h
+ 000002CF			GetValueAtCoords ENDP
 
 				;-----------------------------------------------------
 				; GetValueAtCoords
@@ -437,78 +544,70 @@ Source.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  000001DD			.data
  000001DD 00000000			yIndex2 DWORD ?
  000001E1 00000000			xIndex2 DWORD ?
- 000001F1			.code
- 000001F1			InvertValueAtCoords PROC USES edx eax ebx
- 000001F1  52		   *	    push   edx
- 000001F2  50		   *	    push   eax
- 000001F3  53		   *	    push   ebx
- 000001F4  89 15 000001DD R		mov yIndex2, edx
- 000001FA  A3 000001E1 R		mov xIndex2, eax
+ 000002CF			.code
+ 000002CF			InvertValueAtCoords PROC USES edx eax ebx
+ 000002CF  52		   *	    push   edx
+ 000002D0  50		   *	    push   eax
+ 000002D1  53		   *	    push   ebx
+ 000002D2  89 15 000001DD R		mov yIndex2, edx
+ 000002D8  A3 000001E1 R		mov xIndex2, eax
 
 					; same exact thing as GetValueAtCoords
- 000001FF  BB 0000000E R		mov ebx, OFFSET GameBoard
- 00000204  B8 00000014			mov eax, RowSize
- 00000209  F7 25 000001DD R		mul yIndex2
- 0000020F  03 D8			add ebx, eax
- 00000211  8B 35 000001E1 R		mov esi, xIndex2
- 00000217  B4 00			mov ah, 0
- 00000219  8A 04 33			mov al, [ebx + esi]
+ 000002DD  BB 0000000E R		mov ebx, OFFSET GameBoard
+ 000002E2  B8 00000014			mov eax, RowSize
+ 000002E7  F7 25 000001DD R		mul yIndex2
+ 000002ED  03 D8			add ebx, eax
+ 000002EF  8B 35 000001E1 R		mov esi, xIndex2
+ 000002F5  B4 00			mov ah, 0
+ 000002F7  8A 04 33			mov al, [ebx + esi]
 
 					; invert last bit in AL
 					; couldnt figure out a better way to do this
 					.IF al == 0001h
- 0000021C  3C 01	   *	    cmp    al, 001h
- 0000021E  75 04	   *	    jne    @C000B
- 00000220  B0 00				mov al, 0000
+ 000002FA  3C 01	   *	    cmp    al, 001h
+ 000002FC  75 04	   *	    jne    @C0020
+ 000002FE  B0 00				mov al, 0000
 					.ELSEIF al == 0000h
- 00000222  EB 06	   *	    jmp    @C000D
- 00000224		   *@C000B:
- 00000224  0A C0	   *	    or	al, al
- 00000226  75 02	   *	    jne    @C000E
- 00000228  B0 01				mov al, 0001h
+ 00000300  EB 06	   *	    jmp    @C0022
+ 00000302		   *@C0020:
+ 00000302  0A C0	   *	    or	al, al
+ 00000304  75 02	   *	    jne    @C0023
+ 00000306  B0 01				mov al, 0001h
 					.ENDIF
- 0000022A		   *@C000E:
- 0000022A		   *@C000D:
+ 00000308		   *@C0023:
+ 00000308		   *@C0022:
 					
 					; move the new value to the array
- 0000022A  88 04 33			mov [ebx+esi], al
+ 00000308  88 04 33			mov [ebx+esi], al
 					ret
- 0000022D  5B		   *	    pop    ebx
- 0000022E  58		   *	    pop    eax
- 0000022F  5A		   *	    pop    edx
- 00000230  C3		   *	    ret    00000h
- 00000231			InvertValueAtCoords ENDP
+ 0000030B  5B		   *	    pop    ebx
+ 0000030C  58		   *	    pop    eax
+ 0000030D  5A		   *	    pop    edx
+ 0000030E  C3		   *	    ret    00000h
+ 0000030F			InvertValueAtCoords ENDP
 				;-----------------------------------------------------
 				; main
 				;
 				; manages timing and procedure calls 
 				;-----------------------------------------------------
 
- 00000231			.code
- 00000231			main PROC
+ 0000030F			.code
+ 0000030F			main PROC
 					; randomize seed and generate a starting board
- 00000231  E8 00000000 E		call Randomize
-					;call GenRandomBoard
+ 0000030F  E8 00000000 E		call Randomize
+ 00000314  E8 FFFFFE80			call GenRandomBoard
 
 					;mov ecx, 1000	; game will run for 1000 generations
 					;L1:
 						
 						;call CalculateGeneration
- 00000236  E8 FFFFFF5A				call IncrementGeneration
+ 00000319  E8 FFFFFF55				call IncrementGeneration
 
-
- 0000023B  B8 00000000				mov eax, 0
- 00000240  BA 00000000				mov edx, 0
- 00000245  E8 FFFFFFA7				call InvertValueAtCoords
- 0000024A  B8 00000000				mov eax, 0
- 0000024F  BA 00000001				mov edx, 1
- 00000254  E8 FFFFFF98				call InvertValueAtCoords
-						
- 00000259  E8 FFFFFEC1				call DrawGameBoard
- 0000025E  B8 00000000				mov eax, 0
- 00000263  BA 00000000				mov edx, 0
- 00000268  E8 FFFFFDDD				call CalcLivingNeighbors
- 0000026D  E8 00000000 E			call DumpRegs
+ 0000031E  E8 FFFFFEDA				call DrawGameBoard
+ 00000323  B8 00000000				mov eax, 0
+ 00000328  BA 00000002				mov edx, 2
+ 0000032D  E8 FFFFFD18				call CalcLivingNeighbors
+ 00000332  E8 00000000 E			call DumpRegs
 
 
 						;mov eax, 2000	; 200 ms delay between generations
@@ -516,11 +615,11 @@ Source.asm(6) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 					;loop L1
 
 					invoke ExitProcess,0
- 00000272  6A 00	   *	    push   +000000000h
- 00000274  E8 00000000 E   *	    call   ExitProcess
- 00000279			main endp
+ 00000337  6A 00	   *	    push   +000000000h
+ 00000339  E8 00000000 E   *	    call   ExitProcess
+ 0000033E			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 16:06:20
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 18:10:53
 Source.asm						     Symbols 2 - 1
 
 
@@ -615,14 +714,14 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 000001E5 Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 00000279 Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000033E Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
 
                 N a m e                 Type     Value    Attr
 
-CalcLivingNeighbors  . . . . . .	P Near	 0000004A _TEXT	Length= 00000035 Public STDCALL
+CalcLivingNeighbors  . . . . . .	P Near	 0000004A _TEXT	Length= 00000107 Public STDCALL
 CalculateGeneration  . . . . . .	P Near	 00000000 _TEXT	Length= 0000004A Public STDCALL
   L1 . . . . . . . . . . . . . .	L Near	 00000005 _TEXT	
   L2 . . . . . . . . . . . . . .	L Near	 00000010 _TEXT	
@@ -633,9 +732,9 @@ CreateFileA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 CreateOutputFile . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Crlf . . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 Delay  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-DrawGameBoard  . . . . . . . . .	P Near	 0000011F _TEXT	Length= 00000076 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 0000012E _TEXT	
-  L2 . . . . . . . . . . . . . .	L Near	 00000139 _TEXT	
+DrawGameBoard  . . . . . . . . .	P Near	 000001FD _TEXT	Length= 00000076 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000020C _TEXT	
+  L2 . . . . . . . . . . . . . .	L Near	 00000217 _TEXT	
 DumpMem  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 DumpRegs . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 ExitProcess  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -643,12 +742,13 @@ FileTimeToDosDateTime  . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 FileTimeToSystemTime . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FlushConsoleInputBuffer  . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 FormatMessageA . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GenRandomBoard . . . . . . . . .	P Near	 000000BB _TEXT	Length= 00000064 Public STDCALL
-  L1 . . . . . . . . . . . . . .	L Near	 000000C0 _TEXT	
-  L2 . . . . . . . . . . . . . .	L Near	 000000CB _TEXT	
-GetBottomCenter  . . . . . . . .	P Near	 00000087 _TEXT	Length= 00000007 Public STDCALL
-GetBottomLeft  . . . . . . . . .	P Near	 0000007F _TEXT	Length= 00000008 Public STDCALL
-GetBottomRight . . . . . . . . .	P Near	 0000008E _TEXT	Length= 00000008 Public STDCALL
+GenRandomBoard . . . . . . . . .	P Near	 00000199 _TEXT	Length= 00000064 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000019E _TEXT	
+  L2 . . . . . . . . . . . . . .	L Near	 000001A9 _TEXT	
+GetBottomCenter  . . . . . . . .	P Near	 0000015B _TEXT	Length= 00000007 Public STDCALL
+GetBottomLeft  . . . . . . . . .	P Near	 00000151 _TEXT	Length= 0000000A Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000015A _TEXT	
+GetBottomRight . . . . . . . . .	P Near	 00000162 _TEXT	Length= 00000008 Public STDCALL
 GetCommandLineA  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetCommandTail . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetConsoleCP . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -659,29 +759,33 @@ GetDateTime  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 GetFileTime  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetKeyState  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetLastError . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GetLeft  . . . . . . . . . . . .	P Near	 00000096 _TEXT	Length= 00000007 Public STDCALL
+GetLeft  . . . . . . . . . . . .	P Near	 0000016A _TEXT	Length= 00000009 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 00000172 _TEXT	
 GetLocalTime . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetMaxXY . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetMseconds  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetNumberOfConsoleInputEvents  .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetProcessHeap . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GetRight . . . . . . . . . . . .	P Near	 0000009D _TEXT	Length= 00000007 Public STDCALL
+GetRight . . . . . . . . . . . .	P Near	 00000173 _TEXT	Length= 00000007 Public STDCALL
 GetStdHandle . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetSystemTime  . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTextColor . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 GetTickCount . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-GetTopCenter . . . . . . . . . .	P Near	 000000AC _TEXT	Length= 00000007 Public STDCALL
-GetTopLeft . . . . . . . . . . .	P Near	 000000A4 _TEXT	Length= 00000008 Public STDCALL
-GetTopRight  . . . . . . . . . .	P Near	 000000B3 _TEXT	Length= 00000008 Public STDCALL
-GetValueAtCoords . . . . . . . .	P Near	 000001C4 _TEXT	Length= 0000002D Public STDCALL
+GetTopCenter . . . . . . . . . .	P Near	 00000186 _TEXT	Length= 00000009 Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 0000018E _TEXT	
+GetTopLeft . . . . . . . . . . .	P Near	 0000017A _TEXT	Length= 0000000C Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 00000185 _TEXT	
+GetTopRight  . . . . . . . . . .	P Near	 0000018F _TEXT	Length= 0000000A Public STDCALL
+  L1 . . . . . . . . . . . . . .	L Near	 00000198 _TEXT	
+GetValueAtCoords . . . . . . . .	P Near	 000002A2 _TEXT	Length= 0000002D Public STDCALL
 Gotoxy . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapAlloc  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapCreate . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapDestroy  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapFree . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 HeapSize . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-IncrementGeneration  . . . . . .	P Near	 00000195 _TEXT	Length= 0000002F Public STDCALL
-InvertValueAtCoords  . . . . . .	P Near	 000001F1 _TEXT	Length= 00000040 Public STDCALL
+IncrementGeneration  . . . . . .	P Near	 00000273 _TEXT	Length= 0000002F Public STDCALL
+InvertValueAtCoords  . . . . . .	P Near	 000002CF _TEXT	Length= 00000040 Public STDCALL
 IsDigit  . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 LocalFree  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 MessageBoxA  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
@@ -743,7 +847,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000231 _TEXT	Length= 00000048 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 0000030F _TEXT	Length= 0000002F Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C

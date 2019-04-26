@@ -96,12 +96,63 @@ CalcLivingNeighbors PROC
 	mov originalX, eax
 	mov originalY, edx
 
+	
+	mov eax, originalX
+	mov edx, originalY
+	call GetBottomLeft
+	.IF (al == 0) || (al == 1)
+		add liveCount, al
+	.ENDIF
+
 	mov eax, originalX
 	mov edx, originalY
 	call GetBottomCenter
 	.IF (al == 0) || (al == 1)
 		add liveCount, al
 	.ENDIF
+
+	mov eax, originalX
+	mov edx, originalY
+	call GetBottomRight
+	.IF (al == 0) || (al == 1)
+		add liveCount, al
+	.ENDIF
+
+	mov eax, originalX
+	mov edx, originalY
+	call GetRight
+	.IF (al == 0) || (al == 1)
+		add liveCount, al
+	.ENDIF
+
+	mov eax, originalX
+	mov edx, originalY
+	call GetLeft
+	.IF (al == 0) || (al == 1)
+		add liveCount, al
+	.ENDIF
+
+	mov eax, originalX
+	mov edx, originalY
+	call GetTopLeft
+	.IF (al == 0) || (al == 1)
+		add liveCount, al
+	.ENDIF
+
+	mov eax, originalX
+	mov edx, originalY
+	call GetTopCenter
+	.IF (al == 0) || (al == 1)
+		add liveCount, al
+	.ENDIF
+
+	mov eax, originalX
+	mov edx, originalY
+	call GetTopRight
+	.IF (al == 0) || (al == 1)
+		add liveCount, al
+	.ENDIF
+
 
 	mov ebx, DWORD PTR liveCount
 
@@ -113,8 +164,11 @@ CalcLivingNeighbors ENDP
 .code
 GetBottomLeft PROC
 	dec eax
-	dec edx
+	js L1
+	inc edx
 	call GetValueAtCoords
+
+	L1:
 	ret
 GetBottomLeft ENDP
 
@@ -126,14 +180,16 @@ GetBottomCenter ENDP
 
 GetBottomRight PROC
 	inc eax
-	dec edx
+	inc edx
 	call GetValueAtCoords
 	ret
 GetBottomRight ENDP
 
 GetLeft PROC
 	dec eax
+	js L1	; return if eax is negative (moving off the gameboard)
 	call GetValueAtCoords
+	L1:
 	ret
 GetLeft ENDP
 
@@ -145,21 +201,30 @@ GetRight ENDP
 
 GetTopLeft PROC
 	dec eax
-	inc edx
+	js L1
+	dec edx
+	js L1
 	call GetValueAtCoords
+	
+	L1:
 	ret
 GetTopLeft ENDP
 
 GetTopCenter PROC
-	inc edx
+	dec edx
+	js L1
 	call GetValueAtCoords
+	L1:
 	ret
 GetTopCenter ENDP
 
 GetTopRight PROC
 	inc eax
-	inc edx
+	dec edx
+	js L1
 	call GetValueAtCoords
+
+	L1:
 	ret
 GetTopRight ENDP
 
@@ -373,7 +438,7 @@ InvertValueAtCoords ENDP
 main PROC
 	; randomize seed and generate a starting board
 	call Randomize
-	;call GenRandomBoard
+	call GenRandomBoard
 
 	;mov ecx, 1000	; game will run for 1000 generations
 	;L1:
@@ -381,17 +446,9 @@ main PROC
 		;call CalculateGeneration
 		call IncrementGeneration
 
-
-		mov eax, 0
-		mov edx, 0
-		call InvertValueAtCoords
-		mov eax, 0
-		mov edx, 1
-		call InvertValueAtCoords
-		
 		call DrawGameBoard
 		mov eax, 0
-		mov edx, 0
+		mov edx, 2
 		call CalcLivingNeighbors
 		call DumpRegs
 
