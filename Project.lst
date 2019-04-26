@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 00:28:39
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 00:31:31
 Source.asm						     Page 1 - 1
 
 
@@ -152,10 +152,6 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  000001AB 00000000			randVal DWORD 0
  00000001			.code
  00000001			GenRandomBoard PROC
-					; LOOP
-						; 1. Iterate through the game board
-						; 2. Generate a number between 0 and 1 (inclusive)
-						; 3. Set current cell to random number
  00000001  B9 00000014			mov ecx, 20
 
  00000006				L1:	; outer loop
@@ -169,6 +165,7 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 							; preserve eax to use RandomRange
  0000001C  50						push eax
  0000001D  B8 00000002					mov eax, 2
+
  00000022  E8 00000000 E				call RandomRange
  00000027  A3 000001AB R				mov randVal, eax
  0000002C  58						pop eax
@@ -255,7 +252,7 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
 				;
 				; Prints and increments the generation count.
 				; Called immediately after CalculateGeneration
-				; Receives: N/A
+; Receives: N/A
 				;
 				; Returns: N/A
 				;-----------------------------------------------------
@@ -371,17 +368,18 @@ Source.asm(5) : warning A4011:multiple .MODEL directives found : .MODEL ignored
  00000139			.code
  00000139			main PROC
 					;call DrawGameBoard	; will be called on a delay
-
- 00000139  E8 FFFFFEC3			call GenRandomBoard
- 0000013E  E8 FFFFFF0E			call DrawGameBoard
+ 00000139  E8 00000000 E		call Randomize
+					 
+ 0000013E  E8 FFFFFEBE			call GenRandomBoard
+ 00000143  E8 FFFFFF09			call DrawGameBoard
 
 
 					invoke ExitProcess,0
- 00000143  6A 00	   *	    push   +000000000h
- 00000145  E8 00000000 E   *	    call   ExitProcess
- 0000014A			main endp
+ 00000148  6A 00	   *	    push   +000000000h
+ 0000014A  E8 00000000 E   *	    call   ExitProcess
+ 0000014F			main endp
 				end main
-Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 00:28:39
+Microsoft (R) Macro Assembler Version 14.16.27026.1	    04/26/19 00:31:31
 Source.asm						     Symbols 2 - 1
 
 
@@ -476,7 +474,7 @@ Segments and Groups:
 FLAT . . . . . . . . . . . . . .	GROUP
 STACK  . . . . . . . . . . . . .	32 Bit	 00001000 Para	  Stack	  'STACK'	 
 _DATA  . . . . . . . . . . . . .	32 Bit	 000001CC Para	  Public  'DATA'	
-_TEXT  . . . . . . . . . . . . .	32 Bit	 0000014A Para	  Public  'CODE'	
+_TEXT  . . . . . . . . . . . . .	32 Bit	 0000014F Para	  Public  'CODE'	
 
 
 Procedures, parameters, and locals:
@@ -593,7 +591,7 @@ WriteStackFrame  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External
 WriteString  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteToFile  . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
 WriteWindowsMsg  . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External STDCALL
-main . . . . . . . . . . . . . .	P Near	 00000139 _TEXT	Length= 00000011 Public STDCALL
+main . . . . . . . . . . . . . .	P Near	 00000139 _TEXT	Length= 00000016 Public STDCALL
 printf . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 scanf  . . . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C
 wsprintfA  . . . . . . . . . . .	P Near	 00000000 FLAT	Length= 00000000 External C

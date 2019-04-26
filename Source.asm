@@ -81,6 +81,7 @@ GenRandomBoard PROC
 			; preserve eax to use RandomRange
 			push eax
 			mov eax, 2
+
 			call RandomRange
 			mov randVal, eax
 			pop eax
@@ -249,8 +250,8 @@ InvertValueAtCoords ENDP
 
 .code
 main PROC
-	;call DrawGameBoard	; will be called on a delay
-
+	call Randomize
+	 
 	call GenRandomBoard
 	call DrawGameBoard
 
