@@ -1,3 +1,4 @@
+; Conway's Game of Life
 ; by frank paschen :)
 
 INCLUDE Irvine32.inc
@@ -7,8 +8,8 @@ INCLUDE Irvine32.inc
 ExitProcess proto,dwExitCode:dword
 
 .data
-	GenMsg BYTE "GENERATION #", 0
-	GenCount SBYTE 0
+	genMsg BYTE "GENERATION #", 0
+	genCount SBYTE 0
 
 	; Main game board array that will be drawn to the console
 	GameBoard BYTE 20 DUP(0)
@@ -33,7 +34,6 @@ ExitProcess proto,dwExitCode:dword
 			  BYTE 20 DUP(0)
 			  BYTE 20 DUP(0)
 
-.code
 ;-----------------------------------------------------
 ; CalculateGeneration
 ;
@@ -43,6 +43,14 @@ ExitProcess proto,dwExitCode:dword
 ;
 ; Returns: N/A
 ;-----------------------------------------------------
+liveCount BYTE 0	; stores # of living neighbors for each cell
+cellState BYTE 0	; 1 or 0, living or dead
+yCoord4 DWORD 0
+xCoord4 DWORD 0
+count4 DWORD 0
+tempX DWORD 0
+tempY DWORD 0
+.code
 CalculateGeneration PROC
 
 	; copy the gameboard to the backup board
@@ -51,6 +59,36 @@ CalculateGeneration PROC
 		; 1. Iterate through the board and calculate the # of living neighbors for each cell
 		; 2. Implement GoL rules and update the backup board based on the # of living neighbors
 	; Copy the backup board into the gameboard
+	mov ecx, 20
+
+	L1:
+		mov count4, ecx
+		mov ecx, 20
+		L2:
+
+			mov edx, yCoord4 ; y
+			mov eax, xCoord4 ; x
+			call GetValueAtCoords ; result stored in al
+			mov cellState, al	; used for implementing rules
+
+			push xCoord4
+			push yCoord4
+
+			; mess with xCoord4 and yCoord4 here ...
+
+			pop yCoord4
+			pop xCoord4
+
+			
+
+			inc xCoord4
+		loop L2
+			mov ecx, count4
+	loop L1
+	
+	mov yCoord4, 0
+	mov xCoord4, 0
+
 	ret
 CalculateGeneration ENDP
 ;-----------------------------------------------------
@@ -168,16 +206,16 @@ DrawGameBoard ENDP
 IncrementGeneration PROC USES eax edx
 	mov eax, 0
 	; increment gen count
-	inc GenCount
+	inc genCount
 	; move cursor to top left
 	mov dh, 0	; Y
 	mov dl, 0	; X
 	call Gotoxy
 	; print Generation #:
-	mov edx, OFFSET GenMsg
+	mov edx, OFFSET genMsg
 	call WriteString      
 	; print actual gen count
-	mov al, GenCount
+	mov al, genCount
 	mov ah, 0
 
 	call WriteDec
@@ -267,7 +305,8 @@ main PROC
 
 	mov ecx, 1000	; game will run for 1000 generations
 	L1:
-		call DrawGameBoard	
+		call DrawGameBoard
+		call CalculateGeneration
 		call IncrementGeneration
 		mov eax, 200	; 200 ms delay between generations
 		call Delay		
