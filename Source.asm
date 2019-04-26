@@ -8,7 +8,7 @@ ExitProcess proto,dwExitCode:dword
 
 .data
 	GenMsg BYTE "GENERATION #", 0
-	GenCount SWORD 0
+	GenCount SBYTE 0
 
 	; Main game board array that will be drawn to the console
 	GameBoard BYTE 20 DUP(0)
@@ -121,7 +121,7 @@ GenRandomBoard ENDP
 .code
 DrawGameBoard PROC
 	call Clrscr
-
+	call Crlf
 	mov ecx, 20
 
 	L1:	; outer loop
@@ -165,7 +165,8 @@ DrawGameBoard ENDP
 ;
 ; Returns: N/A
 ;-----------------------------------------------------
-IncrementGeneration PROC
+IncrementGeneration PROC USES eax edx
+	mov eax, 0
 	; increment gen count
 	inc GenCount
 	; move cursor to top left
@@ -176,8 +177,11 @@ IncrementGeneration PROC
 	mov edx, OFFSET GenMsg
 	call WriteString      
 	; print actual gen count
-	mov eax, DWORD PTR GenCount
-	call WriteInt
+	mov al, GenCount
+	mov ah, 0
+
+	call WriteDec
+
 	ret
 IncrementGeneration ENDP
 ;-----------------------------------------------------
@@ -224,7 +228,7 @@ GetValueAtCoords ENDP
 	yIndex2 DWORD ?
 	xIndex2 DWORD ?
 .code
-InvertValueAtCoords PROC USES edx eax
+InvertValueAtCoords PROC USES edx eax ebx
 	mov yIndex2, edx
 	mov xIndex2, eax
 
@@ -260,11 +264,11 @@ main PROC
 	; randomize seed and generate a starting board
 	call Randomize
 	call GenRandomBoard
-	
 
 	mov ecx, 1000	; game will run for 1000 generations
 	L1:
 		call DrawGameBoard	
+		call IncrementGeneration
 		mov eax, 200	; 200 ms delay between generations
 		call Delay		
 	loop L1
