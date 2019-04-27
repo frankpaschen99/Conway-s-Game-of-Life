@@ -9,7 +9,7 @@ ExitProcess proto,dwExitCode:dword
 
 .data
 	genMsg BYTE "GENERATION #", 0
-	genCount SBYTE 0
+	genCount SWORD 0
 
 	; Main game board array that will be drawn to the console
 	GameBoard BYTE 20 DUP(0)
@@ -49,7 +49,7 @@ xCoord4 DWORD 0
 count4 DWORD 0
 liveCount2 DWORD 0
 .code
-CalculateGeneration PROC
+CalculateGeneration PROC USES ecx
 
 	; copy the gameboard to the backup board
 
@@ -70,7 +70,7 @@ CalculateGeneration PROC
 			;mov cellState, al	; used for implementing rules
 
 			call CalcLivingNeighbors
-			call DumpRegs
+			;call DumpRegs
 			;mov liveCount2, ebx
 
 
@@ -85,148 +85,84 @@ CalculateGeneration PROC
 	ret
 CalculateGeneration ENDP
 
-; eax = x, edx = y
+;-----------------------------------------------------
+; CalcLivingNeighbors
+;
+; Returns number of "living" neighbors for any given cell. Between 0 and 8
+; Receives: edx = y coordinate
+;			eax = x coordinate
+; 
+; Returns: ebx = # of living neighbors
+;-----------------------------------------------------
 .data
-liveCount BYTE 0	; stores # of living neighbors for each cell
+liveCount DWORD 0	; stores # of living neighbors for each cell
 originalX DWORD 0
 originalY DWORD 0
 .code
 CalcLivingNeighbors PROC
-	mov ebx, 0
 	mov originalX, eax
 	mov originalY, edx
+	mov ebx, 0
 
-	
 	mov eax, originalX
 	mov edx, originalY
 	call GetBottomLeft
 	.IF (al == 0) || (al == 1)
-		add liveCount, al
+		add liveCount, eax
 	.ENDIF
 
 	mov eax, originalX
 	mov edx, originalY
 	call GetBottomCenter
 	.IF (al == 0) || (al == 1)
-		add liveCount, al
+		add liveCount, eax
 	.ENDIF
 
 	mov eax, originalX
 	mov edx, originalY
 	call GetBottomRight
 	.IF (al == 0) || (al == 1)
-		add liveCount, al
+		add liveCount, eax
 	.ENDIF
 
 	mov eax, originalX
 	mov edx, originalY
 	call GetRight
 	.IF (al == 0) || (al == 1)
-		add liveCount, al
+		add liveCount, eax
 	.ENDIF
 
 	mov eax, originalX
 	mov edx, originalY
 	call GetLeft
 	.IF (al == 0) || (al == 1)
-		add liveCount, al
+		add liveCount, eax
 	.ENDIF
 
 	mov eax, originalX
 	mov edx, originalY
 	call GetTopLeft
 	.IF (al == 0) || (al == 1)
-		add liveCount, al
+		add liveCount, eax
 	.ENDIF
 
 	mov eax, originalX
 	mov edx, originalY
 	call GetTopCenter
 	.IF (al == 0) || (al == 1)
-		add liveCount, al
+		add liveCount, eax
 	.ENDIF
 
 	mov eax, originalX
 	mov edx, originalY
 	call GetTopRight
 	.IF (al == 0) || (al == 1)
-		add liveCount, al
+		add liveCount, eax
 	.ENDIF
 
-
-	mov ebx, DWORD PTR liveCount
-
+	mov ebx, liveCount
 	ret
 CalcLivingNeighbors ENDP
-
-; receives edx=y eax=x 
-; returns al
-.code
-GetBottomLeft PROC
-	dec eax
-	js L1
-	inc edx
-	call GetValueAtCoords
-
-	L1:
-	ret
-GetBottomLeft ENDP
-
-GetBottomCenter PROC
-	inc edx
-	call GetValueAtCoords
-	ret
-GetBottomCenter ENDP
-
-GetBottomRight PROC
-	inc eax
-	inc edx
-	call GetValueAtCoords
-	ret
-GetBottomRight ENDP
-
-GetLeft PROC
-	dec eax
-	js L1	; return if eax is negative (moving off the gameboard)
-	call GetValueAtCoords
-	L1:
-	ret
-GetLeft ENDP
-
-GetRight PROC
-	inc eax
-	call GetValueAtCoords
-	ret
-GetRight ENDP
-
-GetTopLeft PROC
-	dec eax
-	js L1
-	dec edx
-	js L1
-	call GetValueAtCoords
-	
-	L1:
-	ret
-GetTopLeft ENDP
-
-GetTopCenter PROC
-	dec edx
-	js L1
-	call GetValueAtCoords
-	L1:
-	ret
-GetTopCenter ENDP
-
-GetTopRight PROC
-	inc eax
-	dec edx
-	js L1
-	call GetValueAtCoords
-
-	L1:
-	ret
-GetTopRight ENDP
 
 ;-----------------------------------------------------
 ; GenRandomBoard
@@ -294,7 +230,7 @@ GenRandomBoard ENDP
 	count DWORD 0
 	temp BYTE ?
 .code
-DrawGameBoard PROC
+DrawGameBoard PROC USES ecx
 	call Clrscr
 	call Crlf
 	mov ecx, 20
@@ -352,8 +288,7 @@ IncrementGeneration PROC USES eax edx
 	mov edx, OFFSET genMsg
 	call WriteString      
 	; print actual gen count
-	mov al, genCount
-	mov ah, 0
+	mov ax, genCount
 
 	call WriteDec
 
@@ -428,6 +363,102 @@ InvertValueAtCoords PROC USES edx eax ebx
 	mov [ebx+esi], al
 	ret
 InvertValueAtCoords ENDP
+
+;-----------------------------------------------------
+; Helper functions for calculating # of living cells
+; Receives: edx = y coordinate
+;			eax = x coordinate
+; 
+; Returns: al = value at coordinates in array (zero indexed)
+;-----------------------------------------------------
+.code
+GetBottomLeft PROC
+	.IF eax == 0 || edx == 19
+		jmp L1
+	.ENDIF
+	dec eax
+	inc edx
+	call GetValueAtCoords
+	L1:
+	ret
+GetBottomLeft ENDP
+
+GetBottomCenter PROC
+	.IF edx == 19
+		jmp L1
+	.ENDIF
+	inc edx
+	call GetValueAtCoords
+	L1:
+	ret
+GetBottomCenter ENDP
+
+GetBottomRight PROC
+	.IF edx == 19 || eax == 19
+		jmp L1
+	.ENDIF
+	inc eax
+	inc edx
+	call GetValueAtCoords
+	L1:
+	ret
+GetBottomRight ENDP
+
+GetLeft PROC
+	.IF eax == 0
+		jmp L1
+	.ENDIF
+	dec eax
+
+	call GetValueAtCoords
+	L1:
+	ret
+GetLeft ENDP
+
+GetRight PROC
+	.IF eax == 19
+		jmp L1
+	.ENDIF
+	inc eax
+	call GetValueAtCoords
+	L1:
+	ret
+GetRight ENDP
+
+GetTopLeft PROC
+	.IF edx == 0 || eax == 0
+		jmp L1
+	.ENDIF
+	dec eax
+	dec edx
+	call GetValueAtCoords
+	L1:
+	ret
+GetTopLeft ENDP
+
+GetTopCenter PROC
+	.IF edx == 0
+		jmp L1
+	.ENDIF
+	dec edx
+	js L1
+	call GetValueAtCoords
+	L1:
+	ret
+GetTopCenter ENDP
+
+GetTopRight PROC
+	.IF edx == 0 || eax == 19
+		jmp L1
+	.ENDIF
+	inc eax
+	dec edx
+	js L1
+	call GetValueAtCoords
+	L1:
+	ret
+GetTopRight ENDP
+
 ;-----------------------------------------------------
 ; main
 ;
@@ -440,23 +471,17 @@ main PROC
 	call Randomize
 	call GenRandomBoard
 
-	;mov ecx, 1000	; game will run for 1000 generations
-	;L1:
-		
-		;call CalculateGeneration
+	mov ecx, 1000	; game will run for 1000 generations
+	L1:
+		call CalculateGeneration
+		call DrawGameBoard
 		call IncrementGeneration
 
-		call DrawGameBoard
-		mov eax, 0
-		mov edx, 2
-		call CalcLivingNeighbors
-		call DumpRegs
-
-
-		;mov eax, 2000	; 200 ms delay between generations
-		;call Delay		
-	;loop L1
+		mov eax, 100	; 200 ms delay between generations
+		call Delay		
+	loop L1
 
 	invoke ExitProcess,0
 main endp
 end main
+
