@@ -103,7 +103,8 @@ CalcLivingNeighbors PROC
 	mov originalX, eax
 	mov originalY, edx
 	mov ebx, 0
-
+	
+	; check all 8 adjacent cells and add any living (1) cells to the total
 	mov eax, originalX
 	mov edx, originalY
 	call GetBottomLeft
@@ -160,6 +161,7 @@ CalcLivingNeighbors PROC
 		add liveCount, eax
 	.ENDIF
 
+	; return count in ebx for CalculateGeneration
 	mov ebx, liveCount
 	ret
 CalcLivingNeighbors ENDP
@@ -223,7 +225,6 @@ GenRandomBoard ENDP
 ;
 ; Returns: N/A
 ;-----------------------------------------------------
-
 .data
 	yCoord DWORD 0
 	xCoord DWORD 0
@@ -234,37 +235,32 @@ DrawGameBoard PROC USES ecx
 	call Clrscr
 	call Crlf
 	mov ecx, 20
+	mov yCoord, 0
+	mov xCoord, 0
 
 	L1:	; outer loop
 		mov count, ecx
 		mov ecx, 20
 		L2: ; inner loop
-
-			mov edx, yCoord	; y
 			mov eax, xCoord	; x
 
 			call GetValueAtCoords
 			
 			; TODO: Color these, possible find better ASCII characters
 			mov temp, al
-			.IF temp == 0
+			.IF temp == 0	; 0 = dead cell
 				mov al, 178
-			.ELSEIF temp == 1
+			.ELSEIF temp == 1	; 1 = living cell
 				mov al, 176
 			.ENDIF
 
 			call WriteChar
 
 			inc xCoord
-
 		loop L2
 			mov ecx, count
 			call Crlf
 	loop L1
-
-	mov yCoord, 0
-	mov xCoord, 0
-	
 	ret
 DrawGameBoard ENDP
 ;-----------------------------------------------------
@@ -291,7 +287,6 @@ IncrementGeneration PROC USES eax edx
 	mov ax, genCount
 
 	call WriteDec
-
 	ret
 IncrementGeneration ENDP
 ;-----------------------------------------------------
@@ -365,7 +360,9 @@ InvertValueAtCoords PROC USES edx eax ebx
 InvertValueAtCoords ENDP
 
 ;-----------------------------------------------------
-; Helper functions for calculating # of living cells
+; Helper procedures for calculating # of living cells
+; All procedures check if cell is on a border and behave accordingly
+; (do not want to return values outside of the array)
 ; Receives: edx = y coordinate
 ;			eax = x coordinate
 ; 
@@ -441,7 +438,6 @@ GetTopCenter PROC
 		jmp L1
 	.ENDIF
 	dec edx
-	js L1
 	call GetValueAtCoords
 	L1:
 	ret
@@ -453,7 +449,6 @@ GetTopRight PROC
 	.ENDIF
 	inc eax
 	dec edx
-	js L1
 	call GetValueAtCoords
 	L1:
 	ret
@@ -462,9 +457,8 @@ GetTopRight ENDP
 ;-----------------------------------------------------
 ; main
 ;
-; manages timing and procedure calls 
+; Contains game loop which manages timing and procedure calls 
 ;-----------------------------------------------------
-
 .code
 main PROC
 	; randomize seed and generate a starting board
@@ -477,7 +471,7 @@ main PROC
 		call DrawGameBoard
 		call IncrementGeneration
 
-		mov eax, 100	; 200 ms delay between generations
+		mov eax, 200	; 200 ms delay between generations
 		call Delay		
 	loop L1
 
