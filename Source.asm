@@ -33,7 +33,28 @@ ExitProcess proto,dwExitCode:dword
 			  BYTE 20 DUP(0)
 			  BYTE 20 DUP(0)
 			  BYTE 20 DUP(0)
-
+	; board modified each generation, and copied into the game GameBoard
+	GameBoardBackup BYTE 20 DUP(0)
+	Rowsize2 = ($ - GameBoardBackup)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
+			  BYTE 20 DUP(0)
 ;-----------------------------------------------------
 ; CalculateGeneration
 ;
@@ -47,43 +68,184 @@ cellState BYTE 0	; 1 or 0, living or dead
 yCoord4 DWORD 0
 xCoord4 DWORD 0
 count4 DWORD 0
-liveCount2 DWORD 0
+liveCount2 BYTE 0
 .code
-CalculateGeneration PROC USES ecx
+CalculateGeneration PROC USES ecx 
+	call CopyMainToBackup
 
-	; copy the gameboard to the backup board
-
-	; LOOP
-		; 1. Iterate through the board and calculate the # of living neighbors for each cell
-		; 2. Implement GoL rules and update the backup board based on the # of living neighbors
-	; Copy the backup board into the gameboard
 	mov ecx, 20
-
 	L1:
 		mov count4, ecx
 		mov ecx, 20
 		L2:
-
-			mov edx, yCoord4 ; y
-			mov eax, xCoord4 ; x
-			;call GetValueAtCoords ; result stored in al
-			;mov cellState, al	; used for implementing rules
-
+			; get live neighbor count
+			mov eax, xCoord4
+			mov edx, yCoord4
 			call CalcLivingNeighbors
-			;call DumpRegs
-			;mov liveCount2, ebx
+			mov liveCount2, bl
 
-
+			; get cellstate
+			mov eax, xCoord4
+			mov edx, yCoord4
+			call GetValueAtCoords
+			mov cellState, al
 			inc xCoord4
-		loop L2
-			mov ecx, count4
-	loop L1
-	
-	mov yCoord4, 0
-	mov xCoord4, 0
 
+			
+			; apply GoL rules & change backup board
+			.IF (cellstate == 0) && (liveCount2 == 3)
+				call InvertValueAtCoords2
+			.ELSEIF (cellState == 1) && (liveCount2 <= 1)
+				call InvertValueAtCoords2
+			.ELSEIF (cellState == 1) && (liveCount2 >= 4)
+				call InvertValueAtCoords2
+			.ELSEIF (cellState == 1) && (liveCount2 == 2 || liveCount2 == 3)
+				
+			.ENDIF
+
+		dec cx
+		jne L2
+			mov ecx, count4
+	dec cx
+	jne L1
+
+	call CopyBackupToMain
 	ret
 CalculateGeneration ENDP
+;-----------------------------------------------------
+; CopyMainToBackup
+;
+; Copies every cell from the main GameBoard to the GameBoardBackup
+; Receives: N/A
+;
+; Returns: N/A
+;-----------------------------------------------------
+.data
+	yCoord6 DWORD 0
+	xCoord6 DWORD 0
+	count6 DWORD 0
+	backupVal2 DWORD 0
+.code
+CopyMainToBackup PROC
+	mov ecx, 20
+
+	L1:
+		mov count6, ecx
+		mov ecx, 20
+		L2:
+			
+			; xy in backup
+			mov eax, xCoord6
+			mov edx, yCoord6
+
+			call GetValueAtCoords	; value in backup
+			mov backupVal2, eax
+
+			mov edx, yCoord7
+			mov eax, xCoord7
+			mov ebx, backupVal2
+			call SetBackupCell
+
+			inc xCoord6
+		dec cx
+		jne L2
+			mov ecx, count6
+	dec cx
+	jne L1
+	ret
+CopyMainToBackup ENDP
+;-----------------------------------------------------
+; CopyBackupToMain
+;
+; Copies every cell from the GameBoardBackup to the main GameBoard
+; Receives: N/A
+;
+; Returns: N/A
+;-----------------------------------------------------
+.data
+	yCoord7 DWORD 0
+	xCoord7 DWORD 0
+	count7 DWORD 0
+	backupVal BYTE 0
+.code
+CopyBackupToMain PROC
+	mov ecx, 20
+
+	L1:
+		mov count7, ecx
+		mov ecx, 20
+		L2:
+			
+			; xy in backup
+			mov eax, xCoord7
+			mov edx, yCoord7
+
+			call GetValueAtCoords2	; value in backup
+			mov backupVal, al
+
+			mov edx, yCoord7
+			mov eax, xCoord7
+			mov bl, backupVal
+			call SetMainCell
+
+			inc xCoord7
+		dec cx
+		jne L2
+			mov ecx, count7
+	dec cx
+	jne L1
+	ret
+CopyBackupToMain ENDP
+
+;-----------------------------------------------------
+; SetMainCell
+;
+; Returns number of "living" neighbors for any given cell. Between 0 and 8
+; Receives: edx = y coordinate
+;			eax = x coordinate
+;			bl = value
+;
+; Returns: ebx = # of living neighbors
+;-----------------------------------------------------
+.data
+newValue BYTE ?
+yIndex3 DWORD ?
+xIndex3 DWORD ?
+.code
+SetMainCell PROC 
+	mov newValue, bl
+	mov xIndex3, eax
+	mov yIndex3, edx
+
+	mov ebx, OFFSET GameBoard 
+	mov eax, RowSize
+	mul yIndex3
+	add ebx, eax 
+	mov esi, xIndex3
+	mov al, newValue
+	mov [ebx + esi], al
+
+SetMainCell ENDP
+
+.data
+newValue2 DWORD ?
+yIndex4 DWORD ?
+xIndex4 DWORD ?
+.code
+SetBackupCell PROC 
+	mov newValue2, ebx
+	mov xIndex4, eax
+	mov yIndex4, edx
+
+	mov ebx, OFFSET GameBoardBackup
+	mov eax, RowSize2
+	mul yIndex4	
+	add ebx, eax
+	mov esi, xIndex4
+	mov eax, 0 ; problem here
+	mov [ebx + esi], eax
+
+SetBackupCell ENDP
 
 ;-----------------------------------------------------
 ; CalcLivingNeighbors
@@ -99,12 +261,13 @@ liveCount DWORD 0	; stores # of living neighbors for each cell
 originalX DWORD 0
 originalY DWORD 0
 .code
-CalcLivingNeighbors PROC
+CalcLivingNeighbors PROC 
+
 	mov originalX, eax
 	mov originalY, edx
-	mov ebx, 0
-	
+	mov liveCount, 0
 	; check all 8 adjacent cells and add any living (1) cells to the total
+
 	mov eax, originalX
 	mov edx, originalY
 	call GetBottomLeft
@@ -163,6 +326,7 @@ CalcLivingNeighbors PROC
 
 	; return count in ebx for CalculateGeneration
 	mov ebx, liveCount
+
 	ret
 CalcLivingNeighbors ENDP
 
@@ -261,6 +425,7 @@ DrawGameBoard PROC USES ecx
 			mov ecx, count
 			call Crlf
 	loop L1
+
 	ret
 DrawGameBoard ENDP
 ;-----------------------------------------------------
@@ -319,6 +484,31 @@ GetValueAtCoords PROC USES esi ebx
 
 	ret
 GetValueAtCoords ENDP
+;-----------------------------------------------------
+; GetValueAtCoords2
+;
+; Returns value found at index in GameBoardBackup.
+; Receives: edx = y coordinate
+;			eax = x coordinate
+; 
+; Returns: al = value at coordinates in array (zero indexed)
+;-----------------------------------------------------
+GetValueAtCoords2 PROC USES esi ebx
+	mov yIndex, edx
+	mov xIndex, eax
+
+	mov ebx, OFFSET GameBoardBackup
+
+	mov eax, RowSize2
+	mul yIndex	
+	add ebx, eax 
+
+	mov esi, xIndex
+	mov ah, 0
+	mov al, [ebx + esi]
+
+	ret
+GetValueAtCoords2 ENDP
 
 ;-----------------------------------------------------
 ; GetValueAtCoords
@@ -358,6 +548,34 @@ InvertValueAtCoords PROC USES edx eax ebx
 	mov [ebx+esi], al
 	ret
 InvertValueAtCoords ENDP
+.data
+	yIndex9 DWORD ?
+	xIndex9 DWORD ?
+.code
+InvertValueAtCoords2 PROC USES edx eax ebx
+	mov yIndex9, edx
+	mov xIndex9, eax
+
+	; same exact thing as GetValueAtCoords
+	mov ebx, OFFSET GameBoardBackup
+	mov eax, RowSize2
+	mul yIndex9
+	add ebx, eax
+	mov esi, xIndex9
+	mov ah, 0
+	mov al, [ebx + esi]
+
+	.IF al == 0001h
+		mov al, 0000
+	.ELSEIF al == 0000h
+		mov al, 0001h
+	.ENDIF
+	
+	; move the new value to the array
+	mov [ebx+esi], al
+
+	ret
+InvertValueAtCoords2 ENDP
 
 ;-----------------------------------------------------
 ; Helper procedures for calculating # of living cells
@@ -459,6 +677,10 @@ GetTopRight ENDP
 ;
 ; Contains game loop which manages timing and procedure calls 
 ;-----------------------------------------------------
+
+.data
+y DWORD 0
+x DWORD 0
 .code
 main PROC
 	; randomize seed and generate a starting board
@@ -467,9 +689,11 @@ main PROC
 
 	mov ecx, 1000	; game will run for 1000 generations
 	L1:
-		call CalculateGeneration
+		
 		call DrawGameBoard
 		call IncrementGeneration
+
+		;call CalculateGeneration
 
 		mov eax, 200	; 200 ms delay between generations
 		call Delay		
